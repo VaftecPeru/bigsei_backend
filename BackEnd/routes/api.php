@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-//CONTROALDORES
+//CONTROLADORES
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\AdminController;
