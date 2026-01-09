@@ -429,7 +429,7 @@ Route::group(['prefix' => 'setup'], function () {
 Route::group(['prefix' => 'web'], function () {
     Route::get('matriculas/curso-libres', [WebMatriculaController::class, 'cursoLibres']);
     Route::get('matriculas/curso-libres/{id_periodocurso}', [WebMatriculaController::class, 'showCursoLibres']);
-    Route::post('matriculas/curso-libres', [WebMatriculaController::class, 'storeCursoLibre']);
+    Route::post('matriculas/curso-libres', [WebMatriculaController::class, 'storeCursoLibres']);
     Route::get('matriculas/precio-curso-libres', [WebMatriculaController::class, 'precioCursoLibres']);
     Route::get('matriculas/categoria-cursos-libres', [WebMatriculaController::class, 'categoriaCursosLibres']);
     Route::get('cursos/destacados', [WebCursoController::class, 'destacados']);

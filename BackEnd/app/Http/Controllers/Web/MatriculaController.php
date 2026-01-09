@@ -15,6 +15,8 @@ use App\Models\PeriodoCursoPrecio;
 use App\Models\PeriodoCurso;
 use App\Models\MatriculaCurso;
 use App\Models\UsuarioRol;
+use App\Models\Pago;
+use App\Models\MatriculaPagos;
 use App\Http\Controllers\AuthController;
 
 class MatriculaController extends Controller
@@ -79,9 +81,13 @@ class MatriculaController extends Controller
             ->join("titulo_academico as y", "z.id_tituloacademico", "y.id_tituloacademico")
             ->join("carrera as w", "z.id_carrera", "w.id_carrera")
             ->leftJoin("persona as g", "a.id_docente", "g.id_persona")
+            ->leftJoin("tipo_modalidadestudio as m", "a.id_tipomodalidadestudio", "m.id_tipomodalidadestudio")
             ->select(
                 "a.id_periodocurso",
                 "a.detalle",
+                "a.es_sincrono",
+                "a.fecha_inicio",
+                "a.fecha_fin",
                 DB::raw("d.razon_social as empresa_razon_social"),
                 DB::raw("e.nombre as curso_nombre"),
                 DB::raw("concat((datediff(a.fecha_fin, a.fecha_inicio) div 30), ' meses medio-tiempo') as tiempo_de_duracion"),
@@ -90,7 +96,11 @@ class MatriculaController extends Controller
                 DB::raw("y.nombre as tituloacademico_nombre"),
                 DB::raw("w.nombre as carrera_nombre"),
                 DB::raw("d.id_archivo as empresa_id_archivo"),
-                DB::raw("e.id_archivo as curso_id_archivo")
+                DB::raw("e.id_archivo as curso_id_archivo"),
+                DB::raw("m.nombre as modalidadestudio_nombre"),
+                DB::raw("case when a.es_sincrono = '1' then 'Sincrónico' else 'Asincrónico' end as tipo_modalidad"),
+                DB::raw("case when a.es_sincrono = '1' then 'Clases en vivo con horario fijo' else 'Aprende a tu propio ritmo' end as modalidad_descripcion"),
+                DB::raw("f.nombre as categoria_nombre")
             )
             ->where("a.id_periodocurso", $id_periodocurso)
             ->where("a.estado", "1")
@@ -114,7 +124,7 @@ class MatriculaController extends Controller
         return response()->json($curso);
     }
 
-    public function storeCursoLibre(Request $request)
+    public function storeCursoLibres(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id_periodocursoprecio' => 'required',
@@ -137,96 +147,179 @@ class MatriculaController extends Controller
             'direccion' => 'El dirección es requerido',
             'correo' => 'El correo es requerido',
             'numero_operacion' => 'El número operación es requerido',
-            'importe_operacion' => 'El importe es requerido',
+            'importe_operacion' => 'El importe operacion es requerido',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(
-                implode(",",$validator->messages()->all()), 400);
+            return response()->json(implode(",", $validator->messages()->all()), 400);
         }
 
-        $periodoCursoPrecio = PeriodoCursoPrecio::find($request->id_periodocursoprecio);
-        if (!$periodoCursoPrecio) {
-            return response()->json('¡Atención! El precio del curso no existe.', 400);
+        try {
+            DB::beginTransaction();
+
+            // 1. Validar Precio y Curso
+            $periodoCursoPrecio = PeriodoCursoPrecio::find($request->id_periodocursoprecio);
+            if (!$periodoCursoPrecio) {
+                return response()->json('¡Atención! El precio del curso no existe.', 400);
+            }
+            $periodoCurso = PeriodoCurso::find($periodoCursoPrecio->id_periodocurso);
+
+            // 2. Buscar o Crear Persona
+            $esNuevoUsuario = false;
+            $persona = Persona::where("numero_documento", $request->numero_documento)
+                ->where("id_tipodocumento", $request->id_tipodocumento)
+                ->first();
+
+            if (!$persona) {
+                // Si la persona no existe por documento, verificar correo
+                $correoEnUso = Usuario::where("email", $request->correo)->exists();
+                if ($correoEnUso) {
+                     return response()->json('¡Atención! El correo ya está registrado por otro usuario.', 400);
+                }
+
+                $persona = Persona::create([
+                    "id_tipodocumento" => $request->id_tipodocumento,
+                    "numero_documento" => $request->numero_documento,
+                    "nombre" => $request->nombre_completo,
+                    "nombre_completo" => $request->nombre_completo,
+                    "telefono" => $request->telefono,
+                    "direccion" => $request->direccion,
+                    "correo" => $request->correo,
+                    "fechareg" => now(),
+                    "estado" => '1'
+                ]);
+                $esNuevoUsuario = true;
+            } else {
+                 // Si existe, actualizamos datos de contacto si vinieron
+                 $persona->update([
+                     "nombre_completo" => $request->nombre_completo, 
+                     "telefono" => $request->telefono,
+                     "direccion" => $request->direccion,
+                 ]);
+            }
+
+            // 3. Asegurar Estudiante
+            if (!Estudiante::find($persona->id_persona)) {
+                Estudiante::create([
+                    "id_estudiante" => $persona->id_persona,
+                    "estado" => "1",
+                    "fechareg" => now()
+                ]);
+            }
+
+            // 4. Asegurar Usuario
+            if (!Usuario::find($persona->id_persona)) {
+                Usuario::create([
+                    "id_usuario" => $persona->id_persona,
+                    "email" => $request->correo,
+                    "username" => $request->correo,
+                    "password" => Hash::make("123"), 
+                    "estado" => "1",
+                    "fechareg" => now()
+                ]);
+            }
+
+            // 5. Asegurar Rol de Estudiante
+            $idRolStudent = 5;
+            $usuarioRol = UsuarioRol::where('id_usuario', $persona->id_persona)
+                ->where('id_rol', $idRolStudent)
+                ->first();
+            
+            if (!$usuarioRol) {
+                UsuarioRol::create([
+                    "id_empresa" => $periodoCurso->id_empresa,
+                    "id_usuario" => $persona->id_persona,
+                    "id_rol" => $idRolStudent,
+                    "es_principal" => "1"
+                ]);
+            }
+
+            // 6. Verificar Idempotencia de Compra (Evitar Duplicados)
+            $matriculaExistente = DB::table('matricula as m')
+                ->join('matricula_curso as mc', 'm.id_matricula', '=', 'mc.id_matricula')
+                ->where('m.id_estudiante', $persona->id_persona)
+                ->where('mc.id_periodocurso', $periodoCurso->id_periodocurso)
+                ->where('m.estado', '1')
+                ->select('m.id_matricula')
+                ->first();
+
+            if ($matriculaExistente) {
+                DB::commit();
+                $token = AuthController::resetToken($persona->id_persona, $periodoCurso->id_empresa, $idRolStudent);
+                $result = Matricula::find($matriculaExistente->id_matricula);
+                $result->token = $token;
+                $result->mensaje = "Usuario ya matriculado previamente";
+                return response()->json($result);
+            }
+
+            // 7. Crear Matrícula
+            $matricula = Matricula::create([
+                "id_empresa" => $periodoCurso->id_empresa,
+                "id_periodo" => $periodoCurso->id_periodo,
+                "id_estudiante" => $persona->id_persona,
+                "importe" => $request->importe,
+                "tipo" => "1", // sin membresia
+                "estado" => "1", // Activo/Pagado
+                "fechareg" => now()
+            ]);
+
+            // 8. Registrar Pago y Vincular
+            $metodoPago = \App\Models\MetodoPago::where('nombre', 'like', '%transferencia%')->first();
+            
+            if ($metodoPago) {
+                $idMetodoPago = $metodoPago->idMetodoPago;
+            } else {
+                 $firstMp = \App\Models\MetodoPago::first();
+                 $idMetodoPago = $firstMp ? $firstMp->idMetodoPago : 1; 
+            }
+
+            // Calcular montos (Asumiendo que el monto ingresado es el Total)
+            $total = $request->importe_operacion;
+            $subtotal = $total / 1.18;
+            $igv = $total - $subtotal;
+
+            $pago = Pago::create([
+                "idUsuario" => $persona->id_persona,
+                "idMetodoPago" => $idMetodoPago,
+                "importe" => $subtotal,
+                "igv" => $igv,
+                "total" => $total,
+                "descripcion" => "Curso Libre - Operación: " . $request->numero_operacion,
+                "fechaPago" => now()
+            ]);
+
+            MatriculaPagos::create([
+                "idMatricula" => $matricula->id_matricula,
+                "idPago" => $pago->idPago
+            ]);
+
+            // 9. Crear Detalle del Curso
+            MatriculaCurso::create([
+                "id_empresa" => $periodoCurso->id_empresa,
+                "id_matricula" => $matricula->id_matricula,
+                "id_periodocurso" => $periodoCurso->id_periodocurso,
+                "id_curso" => $periodoCurso->id_curso,
+                "fechareg" => now()
+            ]);
+
+            // Generar Token
+            $token = AuthController::resetToken($persona->id_persona, $periodoCurso->id_empresa, $idRolStudent);
+
+            DB::commit();
+
+            $result = Matricula::find($matricula->id_matricula); // Recarga para asegurar datos frescos
+            
+            $response = $result->toArray();
+            $response['token'] = $token;
+            $response['es_nuevo_usuario'] = $esNuevoUsuario;
+            if (isset($result->mensaje)) $response['mensaje'] = $result->mensaje; // Para el caso de idempotencia
+
+            return response()->json($response);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json("Error en el proceso de matrícula: " . $e->getMessage(), 500);
         }
-        $periodoCurso = PeriodoCurso::find($periodoCursoPrecio->id_periodocurso);
-
-        $correoUsuario = Usuario::where("email", $request->correo)
-            ->first();
-        if ($correoUsuario) {
-            return response()->json('¡Atención! El correo de usuario en esta registrado por otra persona.', 400);
-        }
-
-        $numeroDocumentoPersona = Persona::where("numero_documento", $request->numero_documento)
-            ->where("id_tipodocumento", $request->id_tipodocumento)->first();
-        if ($numeroDocumentoPersona) {
-            return response()->json('¡Atención! El documento existe.', 400);
-        }
-
-        $persona = [];
-        $persona["id_tipodocumento"] = $request->id_tipodocumento;
-        $persona["numero_documento"] = $request->numero_documento;
-        $persona["nombre"] = $request->nombre_completo;
-        $persona["nombre_completo"] = $request->nombre_completo;
-        // $persona["fecha_nacimiento"] = $request->fecha_nacimiento;
-        $persona["telefono"] = $request->telefono;
-        $persona["direccion"] = $request->direccion;
-        $persona["correo"] = $request->correo;
-        // $persona["sexo"] = $request->sexo;
-        $persona["fechareg"] = now();
-        $persona["estado"] = '1';
-        $persona = Persona::create($persona);
-
-        $estudiante = [];
-        $estudiante["id_estudiante"] = $persona->id_persona;
-        // $estudiante["codigo"] = 1;
-        $estudiante["estado"] = "1";
-        $estudiante["fechareg"] = now();
-        $estudiante = Estudiante::create($estudiante);
-
-        $usuario = [];
-        $usuario["id_usuario"] = $persona->id_persona;
-        $usuario["email"] = $request->correo;
-        $usuario["username"] = $request->correo;
-        $usuario["password"] = Hash::make("123");
-        $usuario["estado"] = "1";
-        $usuario["fechareg"] = now();
-        $usuario = Usuario::create($usuario);
-
-        $idRolStudent = 5;  // student
-        $usuarioRol = [];
-        $usuarioRol["id_empresa"] = $periodoCurso->id_empresa;
-        $usuarioRol["id_usuario"] = $persona->id_persona;
-        $usuarioRol["id_rol"] = $idRolStudent;  // student
-        $usuarioRol["es_principal"] = "1";
-        $usuarioRol = UsuarioRol::create($usuarioRol);
-
-        $matricula = [];
-        $matricula["id_empresa"] = $periodoCurso->id_empresa;
-        $matricula["id_periodo"] = $periodoCurso->id_periodo;
-        $matricula["id_estudiante"] = $persona->id_persona;
-        $matricula["importe"] = $request->importe;
-        $matricula["tipo"] = "1"; // sin membresia
-        $matricula["estado"] = "1";
-        $matricula["fechareg"] = now();
-        // $matricula["id_usuarioreg"] = $user->id_usuario;
-        $matricula = Matricula::create($matricula);
-
-        $matriculaCurso = [];
-        $matriculaCurso["id_empresa"] = $periodoCurso->id_empresa;
-        $matriculaCurso["id_matricula"] = $matricula->id_matricula;
-        // $matriculaCurso["id_cursohorario"] = ;
-        $matriculaCurso["id_periodocurso"] = $periodoCurso->id_periodocurso;
-        $matriculaCurso["id_curso"] = $periodoCurso->id_curso;
-        $matriculaCurso["fechareg"] = now();
-        $matriculaCurso = MatriculaCurso::create($matriculaCurso);
-
-        $token = AuthController::resetToken($persona->id_persona, $periodoCurso->id_empresa, $idRolStudent);
-
-        $result = Matricula::find($matricula->id_matricula);
-        $result->token = $token;
-
-        return response()->json($result);
     }
 
     public function precioCursoLibres(Request $request)
@@ -236,9 +329,12 @@ class MatriculaController extends Controller
                 'a.id_periodocursoprecio',
                 'a.importe',
                 'a.tipo',
-                DB::raw("round((a.importe/12), 2) as importe_mes"),
-                DB::raw("case when a.tipo = '1' then 'Anual ilimitado' when a.tipo = '2' then 'Mensual ilimitado' end tipo_descripcion"),
-                DB::raw("case when a.tipo = '1' then 'año' when a.tipo = '2' then 'mes' end tipo_nombre")
+                DB::raw("case when a.importe >= 100 then round((a.importe/12), 2) else null end as importe_mes"),
+                DB::raw("case 
+                    when a.importe >= 100 then 'Acceso Anual' 
+                    else 'Acceso Mensual' 
+                end as tipo_descripcion"),
+                DB::raw("case when a.importe >= 100 then 'año' else 'mes' end as tipo_nombre")
             )
             ->where("a.estado", "1");
 
@@ -246,7 +342,7 @@ class MatriculaController extends Controller
             $result->where("a.id_periodocurso", $request->id_periodocurso);
         }
 
-        $result->orderBy("tipo", "asc");
+        $result->orderBy("a.importe", "desc");
         $result = $result->get();
 
         return response()->json($result);
