@@ -329,7 +329,8 @@ class EstudianteController extends Controller
             ->where('idUsuario', $idUsuario)
             ->get()
             ->map(function ($cursoEstudiante) {
-                $docente = $cursoEstudiante->curso->cursoDocentes->first()?->usuario;
+                $firstDocente = $cursoEstudiante->curso->cursoDocentes->first();
+                $docente = $firstDocente ? $firstDocente->usuario : null;
 
                 return [
                     'nombreCurso' => $cursoEstudiante->curso->nombreCurso,
@@ -384,14 +385,14 @@ class EstudianteController extends Controller
             ->get()
             ->map(function ($cursoEstudiante) {
                 return [
-                    'ciclo' => $cursoEstudiante->curso->cicloCursos->first()?->ciclo->nombreCiclo ?? 'Sin ciclo',
+                    'ciclo' => ($cursoEstudiante->curso->cicloCursos->first() && $cursoEstudiante->curso->cicloCursos->first()->ciclo) ? $cursoEstudiante->curso->cicloCursos->first()->ciclo->nombreCiclo : 'Sin ciclo',
                     'cursos' => $cursoEstudiante->curso->cicloCursos->map(function ($cicloCurso) {
                         return [
                             'nombreCurso' => $cicloCurso->curso->nombreCurso,
                             'evaluaciones' => $cicloCurso->curso->cursoEvaluaciones->map(function ($cursoEvaluacion) {
                                 return [
                                     'nombre' => $cursoEvaluacion->evaluacion->nombre,
-                                    'nota' => $cursoEvaluacion->evaluacionesNotas->first()?->nota ?? 'Sin nota',
+                                    'nota' => $cursoEvaluacion->evaluacionesNotas->first() ? $cursoEvaluacion->evaluacionesNotas->first()->nota : 'Sin nota',
                                     'porcentaje' => $cursoEvaluacion->porcentaje,
                                 ];
                             }),
@@ -759,5 +760,27 @@ class EstudianteController extends Controller
         $nombreArchivo = 'reporte_estudiantes_' . date('Ymd_His') . '.pdf';
 
         return $pdf->download($nombreArchivo);
+    }
+
+    public function reportePagos(Request $request) {
+        // En una implementación real, esto filtraría por el usuario autenticado.
+        // Simulamos obteniendo pagos recientes o todos.
+        
+        $pagos = DB::table('pago')
+             ->join('metodo_pago', 'pago.idMetodoPago', '=', 'metodo_pago.idMetodoPago')
+             ->select(
+                 'pago.idPago',
+                 'pago.importe',
+                 'pago.igv',
+                 'pago.total',
+                 'pago.descripcion',
+                 'pago.fechaPago',
+                 'metodo_pago.nombre as metodo_pago'
+             )
+             ->orderBy('pago.fechaPago', 'desc')
+             ->limit(10)
+             ->get();
+
+        return response()->json($pagos);
     }
 }

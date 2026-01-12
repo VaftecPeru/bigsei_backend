@@ -585,6 +585,9 @@ Route::get('estudiante/obtener-plan-estudios', [EstudianteController::class, 'ob
 //RUTA PARA OBTENER EL PLAN DE ESTUDIOS
 Route::get('estudiante/descargar-plan-estudios', [EstudianteController::class, 'descargarPlanEstudios']);
 
+//RUTA PARA OBTENER REPORTE DE PAGOS
+Route::get('estudiante/reporte-pagos', [EstudianteController::class, 'reportePagos']);
+
 //RUTA PARA OBTENER REPORTE DE INGRESOS Y EGRESOS
 Route::get('contador/reporte/ingresos_egresos', [ContadorController::class, 'reporteIngresosEgresos']);
 

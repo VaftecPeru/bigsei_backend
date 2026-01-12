@@ -51,7 +51,8 @@ class MatriculaController extends Controller
                         sum(case when i.id_resena is not null then 1 else 0 end)
                     )
                 , 1) as rating"),
-                DB::raw("sum(case when i.id_resena is not null then 1 else 0 end) as reviews")
+                DB::raw("sum(case when i.id_resena is not null then 1 else 0 end) as reviews"),
+                "a.es_sincrono"
             )
             ->where("a.estado", "1")
             ->where("b.esta_abierto", "1")
@@ -61,7 +62,7 @@ class MatriculaController extends Controller
             $paginate->where("a.id_tipocategoria", $request->id_tipocategoria);
         }
 
-        $paginate = $paginate->groupBy("a.id_periodocurso", "a.detalle", "e.url_img", "d.razon_social", "e.nombre", "e.id_archivo")
+        $paginate = $paginate->groupBy("a.id_periodocurso", "a.detalle", "e.url_img", "d.razon_social", "e.nombre", "e.id_archivo", "a.es_sincrono")
             ->orderBy("empresa_razon_social", "asc")
             ->orderBy("curso_nombre", "asc")
             ->paginate($per_page);
