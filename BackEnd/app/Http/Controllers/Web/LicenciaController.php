@@ -124,7 +124,7 @@ class LicenciaController extends Controller
         $licencia["fechareg"] = now();
         $licencia = Licencia::create($licencia);
 
-        $token = AuthController::resetToken($persona->id_persona, null, $idRolAdmin);
+        $token = AuthController::resetToken($persona->id_persona, $empresa->id_empresa, $idRolAdmin);
 
         $licencia = Licencia::find($licencia->id_licencia);
         $licencia->token = $token;
