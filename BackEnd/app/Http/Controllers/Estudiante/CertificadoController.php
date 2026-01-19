@@ -344,15 +344,17 @@ class CertificadoController extends Controller
                 return response()->json(['mensaje' => 'Certificado no encontrado'], 404);
             }
 
-            $rutaCompleta = Storage::disk('public')->path($certificado->ruta_archivo);
+            // Usar storage_path directo para evitar error de finfo en Storage::disk
+            $rutaCompleta = storage_path('app/public/' . $certificado->ruta_archivo);
 
             if (!file_exists($rutaCompleta)) {
                 return response()->json(['mensaje' => 'El archivo del certificado no existe'], 404);
             }
 
-            return response()->download($rutaCompleta, $certificado->nombre_archivo, [
-                'Content-Type' => 'application/pdf',
-            ]);
+            // Retornar archivo manualmente para evitar detección de mime type
+            return response(file_get_contents($rutaCompleta))
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $certificado->nombre_archivo . '"');
         } catch (\Exception $e) {
             return response()->json(['mensaje' => 'Error al descargar el certificado: ' . $e->getMessage()], 500);
         }
