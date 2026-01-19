@@ -288,8 +288,12 @@ class CertificadoController extends Controller
             $pdf = Pdf::loadView('pdf.certificado', $dataPdf);
             $pdf->setPaper('landscape', 'A4');
 
-            // Guardar el PDF (sobrescribe si existe)
-            Storage::disk('public')->put($rutaArchivo, $pdf->output());
+            // Guardar el PDF directamente para evitar dependencia de finfo
+            $fullPath = storage_path('app/public/' . $rutaArchivo);
+            if (!file_exists(dirname($fullPath))) {
+                mkdir(dirname($fullPath), 0755, true);
+            }
+            file_put_contents($fullPath, $pdf->output());
 
             // Crear o Actualizar el registro del certificado
             $certificado = Certificado::updateOrCreate(
