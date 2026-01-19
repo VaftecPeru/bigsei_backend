@@ -47,6 +47,7 @@ use App\Http\Controllers\Estudiante\MiAcademicoController as EstudianteMiAcademi
 use App\Http\Controllers\Estudiante\ArchivoController as EstudianteArchivoController;
 use App\Http\Controllers\Estudiante\MiMatriculaController as EstudianteMiMatriculaController;
 use App\Http\Controllers\Estudiante\ReporteController as EstudianteReporteController;
+use App\Http\Controllers\Estudiante\CertificadoController as EstudianteCertificadoController;
 use App\Http\Controllers\Setup\ArchivoController as SetupArchivoController;
 use App\Http\Controllers\Setup\TipoDocumentoController as SetupTipoDocumentoController;
 use App\Http\Controllers\Setup\TipoModalidadestudioController as SetupTipoModalidadestudioController;
@@ -287,6 +288,14 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:studen
     Route::post('mi-academico-entrega-respuestas', [EstudianteMiAcademicoController::class, 'storeEntregaRespuesta']);
     Route::get('reportes/notas', [EstudianteReporteController::class, 'notas']);
     Route::get('reportes/matriculas', [EstudianteReporteController::class, 'matriculas']);
+    
+    // Rutas de progreso y certificados
+    Route::get('mi-progreso-curso/{id_periodocurso}', [EstudianteCertificadoController::class, 'getProgresoCurso']);
+    Route::post('marcar-contenido-completado', [EstudianteCertificadoController::class, 'marcarContenidoCompletado']);
+    Route::get('mis-certificados', [EstudianteCertificadoController::class, 'listarMisCertificados']);
+    Route::get('mis-cursos-progreso', [EstudianteCertificadoController::class, 'listarMisCursosProgreso']);
+    Route::post('generar-certificado/{id_periodocurso}', [EstudianteCertificadoController::class, 'generarCertificado']);
+    Route::get('descargar-certificado/{id_certificado}', [EstudianteCertificadoController::class, 'descargarCertificado']);
 });
 Route::group(['prefix' => 'padre'], function () {
     // route
@@ -704,3 +713,4 @@ Route::middleware(['auth.jwt', 'checkRoleMW:topico'])->group(function () {});
 
 
 //================================================================================================
+
