@@ -2,7 +2,13 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie', '/logingoogle','auth/google'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    'allowed_origins' => [
+        'http://localhost:5173', 
+        'http://127.0.0.1:5173',
+        'https://bigsei.com',
+        'https://www.bigsei.com',
+        'https://intranet.bigsei.com',
+    ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => ['Authorization'],
