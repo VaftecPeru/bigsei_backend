@@ -13,17 +13,21 @@ class CheckUserRole
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string  $role  // Este es el tercer parámetro que es el rol que pasas desde la ruta
+     * @param  string  ...$roles  
      * @return mixed
      */
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next, ...$roles)
     {
         try {
             $authorization = $request->header('Authorization') ?? "";
             $token = str_replace("Bearer ", "", $authorization);
+            $allowedRoles = [];
+            foreach ($roles as $role) {
+                $allowedRoles = array_merge($allowedRoles, explode(',', $role));
+            }
+            $allowedRoles = array_map('trim', $allowedRoles);
             
-            \Illuminate\Support\Facades\Log::info("CheckUserRole: Checking access for role: " . $role);
-            // \Illuminate\Support\Facades\Log::info("Token received: " . substr($token, 0, 10) . "...");
+            \Illuminate\Support\Facades\Log::info("CheckUserRole: Checking access for roles: " . implode(', ', $allowedRoles));
 
             $usuarioSesion = UsuarioSesion::select("usuario_sesion.*", "b.codigo")
                 ->join("rol as b", "usuario_sesion.id_rol", "b.id_rol")
@@ -38,8 +42,9 @@ class CheckUserRole
 
             \Illuminate\Support\Facades\Log::info("CheckUserRole: User role found: " . $usuarioSesion->codigo);
 
-            if($usuarioSesion->codigo != $role) {
-                \Illuminate\Support\Facades\Log::warning("CheckUserRole: Role mismatch. Expected: $role, Found: " . $usuarioSesion->codigo);
+            // Verificar si el rol del usuario está en la lista de roles permitidos
+            if(!in_array($usuarioSesion->codigo, $allowedRoles)) {
+                \Illuminate\Support\Facades\Log::warning("CheckUserRole: Role mismatch. Expected one of: " . implode(', ', $allowedRoles) . ", Found: " . $usuarioSesion->codigo);
                 return response()->json(['error' => ' Acceso denegado: No tienes el rol.'], 403);
             }
 

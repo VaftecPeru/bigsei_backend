@@ -262,7 +262,7 @@ Route::group(['prefix' => 'docente', 'middleware' => ['CheckUserRoleMW:docente']
 Route::group(['prefix' => 'new-student'], function () {
     // route
 });
-Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:student']], function () {
+Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:superadministrador,admin,director,docente,student,padre,tutor,vendedor,bibliotecario,topicomedico,contador']], function () {
     Route::get('mi-carreras', [EstudianteMiCarreraController::class, 'index']);
     Route::get('mi-perfil', [EstudianteMiPerfilController::class, 'show']);
     Route::put('mi-perfil', [EstudianteMiPerfilController::class, 'update']);
