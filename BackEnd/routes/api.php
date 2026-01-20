@@ -387,7 +387,6 @@ Route::group(['prefix' => 'dashboard'], function () {
 Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], function () {
     // Route::get('visualizar-archivos/{id_archivo}', [SetupArchivoController::class, 'visualizar']);
     Route::get('tipo-modalidadestudios', [SetupTipoModalidadestudioController::class, 'index']);
-    Route::get('tipo-niveleducativos', [SetupTipoNivelEducativoController::class, 'index']);
     Route::get('tipo-especializaciones', [SetupTipoEspecializacionController::class, 'index']);
     Route::get('carreras/activos', [SetupCarreraController::class, 'activos']);
     Route::get('carreras', [SetupCarreraController::class, 'index']);
@@ -427,6 +426,7 @@ Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], funct
     Route::get('dias/activos', [SetupDiaController::class, 'activos']);
 });
 Route::group(['prefix' => 'setup'], function () {
+    Route::get('tipo-niveleducativos', [SetupTipoNivelEducativoController::class, 'index']);
     Route::get('tipo-documentos', [SetupTipoDocumentoController::class, 'index']);
     Route::get('tipo-categorias', [SetupCategoriaController::class, 'index']);
     Route::get('visualizar-archivos/{id_archivo}', [SetupArchivoController::class, 'visualizar']);
@@ -546,6 +546,8 @@ Route::get('/obtener-especialidad', [MatriculaController::class, 'obtenerEspecia
 //RUTA PARA OBTENER LAS SECCIONES POR AÑO
 Route::get('matricula/secciones/{idAnho}', [MatriculaController::class, 'obtenerSeccionesPorAnho']);
 
+// RUTA PARA GENERAR COMPROBANTE DE MATRICULA PDF (Web)
+Route::post('web/matriculas/generar-comprobante', [WebMatriculaController::class, 'generarComprobante']);
 
 //================================================================================================
 

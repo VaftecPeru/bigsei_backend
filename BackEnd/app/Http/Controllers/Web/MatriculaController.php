@@ -18,6 +18,8 @@ use App\Models\UsuarioRol;
 use App\Models\Pago;
 use App\Models\MatriculaPagos;
 use App\Http\Controllers\AuthController;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class MatriculaController extends Controller
 {
@@ -186,6 +188,9 @@ class MatriculaController extends Controller
                     "telefono" => $request->telefono,
                     "direccion" => $request->direccion,
                     "correo" => $request->correo,
+                    "id_tiponiveleducativo" => $request->id_tiponiveleducativo ?? null,
+                    "programa_estudios" => $request->programa_estudios ?? null,
+                    "id_tiponiveleducativo_formativo" => $request->id_tiponiveleducativo_formativo ?? null,
                     "fechareg" => now(),
                     "estado" => '1'
                 ]);
@@ -196,6 +201,9 @@ class MatriculaController extends Controller
                      "nombre_completo" => $request->nombre_completo, 
                      "telefono" => $request->telefono,
                      "direccion" => $request->direccion,
+                     "id_tiponiveleducativo" => $request->id_tiponiveleducativo ?? $persona->id_tiponiveleducativo,
+                     "programa_estudios" => $request->programa_estudios ?? $persona->programa_estudios,
+                     "id_tiponiveleducativo_formativo" => $request->id_tiponiveleducativo_formativo ?? $persona->id_tiponiveleducativo_formativo,
                  ]);
             }
 
@@ -367,5 +375,65 @@ class MatriculaController extends Controller
         $result = $result->get();
 
         return response()->json($result);
+    }
+
+    /**
+     * Genera y descarga el comprobante de matrícula en PDF
+     */
+    public function generarComprobante(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'nombre_estudiante' => 'required|string',
+                'dni_estudiante' => 'required|string',
+                'correo_estudiante' => 'required|email',
+                'nombre_curso' => 'required|string',
+                'precio' => 'nullable|numeric',
+                'duracion_curso' => 'nullable|string',
+                'docente_nombre' => 'nullable|string',
+                'modalidad' => 'nullable|string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errores' => $validator->errors()], 422);
+            }
+
+            // Generar código único para el comprobante
+            $codigoComprobante = 'MAT-' . date('Y') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+            // Convertir logo a base64 para DomPDF
+            $logoPath = public_path('img/logo.png');
+            $logoBase64 = '';
+            if (file_exists($logoPath)) {
+                $logoData = base64_encode(file_get_contents($logoPath));
+                $logoBase64 = 'data:image/png;base64,' . $logoData;
+            }
+
+            $dataPdf = [
+                'nombre_estudiante' => $request->nombre_estudiante,
+                'dni_estudiante' => $request->dni_estudiante,
+                'correo_estudiante' => $request->correo_estudiante,
+                'nombre_curso' => $request->nombre_curso,
+                'precio' => $request->precio,
+                'duracion_curso' => $request->duracion_curso,
+                'docente_nombre' => $request->docente_nombre,
+                'modalidad' => $request->modalidad ?? 'Virtual',
+                'fecha_matricula' => Carbon::now()->format('d/m/Y'),
+                'codigo_comprobante' => $codigoComprobante,
+                'empresa_nombre' => 'BIGSEI',
+                'logo_base64' => $logoBase64,
+            ];
+
+            $pdf = Pdf::loadView('pdf.comprobante_matricula', $dataPdf);
+            $pdf->setPaper('A4', 'portrait');
+
+            $nombreArchivo = 'comprobante_matricula_' . $codigoComprobante . '.pdf';
+
+            return $pdf->download($nombreArchivo);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error Generar Comprobante: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            return response()->json(['mensaje' => 'Error al generar el comprobante: ' . $e->getMessage()], 500);
+        }
     }
 }

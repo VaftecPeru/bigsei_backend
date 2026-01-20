@@ -28,7 +28,10 @@ class Persona extends Model
         'id_tipodocumento',
         'foto',
         'id_archivo_foto',
-        'id_archivo_baner'
+        'id_archivo_baner',
+        'id_tiponiveleducativo',
+        'programa_estudios',
+        'id_tiponiveleducativo_formativo'
     ];
     
     public function usuario()
@@ -36,4 +39,13 @@ class Persona extends Model
         return $this->hasOne(Usuario::class, 'id_usuario', 'id_persona');
     }
 
+    public function nivelEducativo()
+    {
+        return $this->belongsTo(TipoNiveleducativo::class, 'id_tiponiveleducativo');
+    }
+
+    public function nivelFormativo()
+    {
+        return $this->belongsTo(TipoNiveleducativo::class, 'id_tiponiveleducativo_formativo');
+    }
 }
