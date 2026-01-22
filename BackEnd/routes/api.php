@@ -425,7 +425,7 @@ Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], funct
     Route::delete('aulas/{id_aula}', [SetupAulaController::class, 'destroy']);
     Route::get('dias/activos', [SetupDiaController::class, 'activos']);
 });
-Route::group(['prefix' => 'setup'], function () {
+Route::group(['prefix' => 'setup', 'middleware' => ['auth.jwt']], function () {
     Route::get('tipo-niveleducativos', [SetupTipoNivelEducativoController::class, 'index']);
     Route::get('tipo-documentos', [SetupTipoDocumentoController::class, 'index']);
     Route::get('tipo-categorias', [SetupCategoriaController::class, 'index']);
