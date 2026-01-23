@@ -152,6 +152,20 @@ class MiMatriculaController extends Controller
 
         $user = $request->sessionUser;
 
+        // Update Persona info if provided (for billing/identification)
+        if ($request->input('id_tipodocumento') || $request->input('numero_documento')) {
+            $persona = \App\Models\Persona::find($user->id_usuario);
+            if ($persona) {
+                if ($request->input('id_tipodocumento')) {
+                    $persona->id_tipodocumento = $request->input('id_tipodocumento');
+                }
+                if ($request->input('numero_documento')) {
+                    $persona->numero_documento = $request->input('numero_documento');
+                }
+                $persona->save();
+            }
+        }
+
         $periodoCursoPrecio = PeriodoCursoPrecio::find($request->id_periodocursoprecio);
         if (!$periodoCursoPrecio) {
             return response()->json('¡Atención! El precio del curso no existe.', 400);

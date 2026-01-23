@@ -296,6 +296,15 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     Route::get('mis-cursos-progreso', [EstudianteCertificadoController::class, 'listarMisCursosProgreso']);
     Route::post('generar-certificado/{id_periodocurso}', [EstudianteCertificadoController::class, 'generarCertificado']);
     Route::get('descargar-certificado/{id_certificado}', [EstudianteCertificadoController::class, 'descargarCertificado']);
+    
+    // Hito 5: Validación de acceso al curso pagado
+    Route::get('courses/{id}/access', [EstudianteCertificadoController::class, 'checkCourseAccess']);
+    
+    // Hito 6: Registro de progreso por lección
+    Route::post('progress/lesson', [EstudianteCertificadoController::class, 'registerLessonProgress']);
+    
+    // Hito 11: Descarga de certificado por course_id
+    Route::get('certificates/{course_id}/download', [EstudianteCertificadoController::class, 'downloadCertificateByCourse']);
 });
 Route::group(['prefix' => 'padre'], function () {
     // route

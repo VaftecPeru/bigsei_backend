@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\CourseCompleted;
+use App\Listeners\GenerateCertificate;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registrar el listener para generación automática de certificados
+        Event::listen(
+            CourseCompleted::class,
+            GenerateCertificate::class
+        );
     }
 }

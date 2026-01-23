@@ -15,6 +15,10 @@ use App\Models\PeriodoTema;
 use App\Models\PeriodoVideo;
 use App\Models\PeriodoTarea;
 use App\Models\PeriodoCuestionario;
+use App\Models\CourseProgress;
+use App\Models\LessonProgress;
+use App\Models\MatriculaCurso;
+use App\Events\CourseCompleted;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
@@ -207,6 +211,9 @@ class CertificadoController extends Controller
 
             // Verificar si el curso está 100% completado
             $progresoActual = $this->calcularProgresoCurso($id_usuario, $request->id_periodocurso);
+
+            // Actualizar CourseProgress y disparar evento si está completado
+            $this->updateCourseProgressAndTriggerEvent($id_usuario, $request->id_periodocurso, $progresoActual['porcentaje']);
 
             return response()->json([
                 'mensaje' => 'Contenido marcado como completado',
@@ -600,5 +607,209 @@ class CertificadoController extends Controller
             'tareas' => ['total' => $totalTareas, 'completados' => $tareasCompletadas],
             'cuestionarios' => ['total' => $totalCuestionarios, 'completados' => $cuestionariosCompletados],
         ];
+    }
+
+    // ==========================================
+    // Nuevos métodos para Hitos 5-12
+    // ==========================================
+
+    /**
+     * Hito 5: Validación de acceso al curso
+     * GET /api/courses/{id}/access
+     */
+    public function checkCourseAccess(Request $request, $id_periodocurso)
+    {
+        try {
+            $id_usuario = $request->sessionUser->id_usuario;
+
+            // Verificar que el curso existe
+            $periodoCurso = PeriodoCurso::find($id_periodocurso);
+            if (!$periodoCurso) {
+                return response()->json([
+                    'access' => false,
+                    'mensaje' => 'Curso no encontrado'
+                ], 404);
+            }
+
+            // Verificar que el usuario está matriculado en el curso
+            $matriculado = DB::table('matricula as m')
+                ->join('matricula_curso as mc', 'm.id_matricula', '=', 'mc.id_matricula')
+                ->where('m.id_estudiante', $id_usuario)
+                ->where('mc.id_periodocurso', $id_periodocurso)
+                ->where('m.estado', 1) // Matrícula activa
+                ->exists();
+
+            if (!$matriculado) {
+                return response()->json([
+                    'access' => false,
+                    'course_status' => null,
+                    'mensaje' => 'No tienes acceso a este curso'
+                ], 403);
+            }
+
+            // Obtener o crear el progreso del curso
+            $courseProgress = CourseProgress::getOrCreate($id_usuario, $id_periodocurso);
+
+            return response()->json([
+                'access' => true,
+                'course_status' => $courseProgress->status,
+                'progress_percentage' => $courseProgress->progress_percentage,
+                'started_at' => $courseProgress->started_at?->format('Y-m-d H:i:s'),
+                'completed_at' => $courseProgress->completed_at?->format('Y-m-d H:i:s'),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'access' => false,
+                'mensaje' => 'Error al verificar acceso: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Hito 6: Registro de Progreso por Lección
+     * POST /api/progress/lesson
+     * Regla: Una lección solo se registra una vez
+     */
+    public function registerLessonProgress(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_periodocurso' => 'required|integer|exists:periodo_curso,id_periodocurso',
+            'id_lesson' => 'required|integer',
+            'lesson_type' => 'required|string|in:video,tarea,cuestionario',
+        ], [
+            'id_periodocurso.required' => 'El ID del curso es requerido',
+            'id_periodocurso.exists' => 'El curso no existe',
+            'id_lesson.required' => 'El ID de la lección es requerido',
+            'lesson_type.required' => 'El tipo de lección es requerido',
+            'lesson_type.in' => 'El tipo de lección debe ser: video, tarea o cuestionario',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errores' => $validator->errors()], 422);
+        }
+
+        try {
+            $id_usuario = $request->sessionUser->id_usuario;
+            $id_periodocurso = $request->id_periodocurso;
+            $id_lesson = $request->id_lesson;
+            $lesson_type = $request->lesson_type;
+
+            // Verificar que el contenido existe
+            $contenidoExiste = $this->verificarContenidoExiste($lesson_type, $id_lesson);
+            if (!$contenidoExiste) {
+                return response()->json(['mensaje' => 'La lección especificada no existe'], 404);
+            }
+
+            // Registrar la lección (solo si no existe - Hito 6)
+            $lessonProgress = LessonProgress::registerIfNotExists(
+                $id_usuario,
+                $id_periodocurso,
+                $id_lesson,
+                $lesson_type
+            );
+
+            $yaRegistrado = $lessonProgress === null;
+
+            // También registrar en la tabla existente para compatibilidad
+            if (!$yaRegistrado) {
+                ProgresoUsuarioContenido::updateOrCreate(
+                    [
+                        'id_usuario' => $id_usuario,
+                        'tipo_contenido' => $lesson_type,
+                        'id_contenido' => $id_lesson,
+                    ],
+                    [
+                        'id_periodocurso' => $id_periodocurso,
+                        'completado' => true,
+                        'fecha_completado' => Carbon::now(),
+                    ]
+                );
+            }
+
+            // Calcular progreso actual
+            $progresoActual = $this->calcularProgresoCurso($id_usuario, $id_periodocurso);
+
+            // Actualizar CourseProgress y disparar evento si está completado
+            $this->updateCourseProgressAndTriggerEvent($id_usuario, $id_periodocurso, $progresoActual['porcentaje']);
+
+            // Obtener estado actualizado
+            $courseProgress = CourseProgress::getOrCreate($id_usuario, $id_periodocurso);
+
+            return response()->json([
+                'mensaje' => $yaRegistrado ? 'La lección ya fue registrada anteriormente' : 'Lección registrada correctamente',
+                'ya_registrado' => $yaRegistrado,
+                'lesson_progress' => $lessonProgress ? [
+                    'id_lesson_progress' => $lessonProgress->id_lesson_progress,
+                    'id_lesson' => $lessonProgress->id_lesson,
+                    'lesson_type' => $lessonProgress->lesson_type,
+                    'status' => $lessonProgress->status,
+                    'completed_at' => $lessonProgress->completed_at->format('Y-m-d\TH:i:s'),
+                ] : null,
+                'course_progress' => [
+                    'progress_percentage' => $progresoActual['porcentaje'],
+                    'status' => $courseProgress->status,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['mensaje' => 'Error al registrar lección: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Hito 11: Descarga de certificado por course_id
+     * GET /api/certificates/{course_id}/download
+     */
+    public function downloadCertificateByCourse(Request $request, $course_id)
+    {
+        try {
+            $id_usuario = $request->sessionUser->id_usuario;
+
+            // Buscar certificado por course_id (id_periodocurso)
+            $certificado = Certificado::where('id_usuario', $id_usuario)
+                ->where('id_periodocurso', $course_id)
+                ->where('estado', true)
+                ->first();
+
+            if (!$certificado) {
+                return response()->json(['mensaje' => 'Certificado no encontrado para este curso'], 404);
+            }
+
+            // Usar storage_path directo para evitar error de finfo en Storage::disk
+            $rutaCompleta = storage_path('app/public/' . $certificado->ruta_archivo);
+
+            if (!file_exists($rutaCompleta)) {
+                return response()->json(['mensaje' => 'El archivo del certificado no existe'], 404);
+            }
+
+            // Retornar archivo manualmente para evitar detección de mime type
+            return response(file_get_contents($rutaCompleta))
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $certificado->nombre_archivo . '"');
+        } catch (\Exception $e) {
+            return response()->json(['mensaje' => 'Error al descargar el certificado: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Hito 7/8/9: Actualiza el progreso del curso y dispara evento si está completado
+     * - Calcula automáticamente % de avance
+     * - Actualiza estado: not_started, in_progress, completed
+     * - Si progreso = 100%: dispara evento course_completed
+     */
+    private function updateCourseProgressAndTriggerEvent(int $id_usuario, int $id_periodocurso, float $porcentaje): void
+    {
+        $courseProgress = CourseProgress::getOrCreate($id_usuario, $id_periodocurso);
+        $wasCompleted = $courseProgress->isCompleted();
+
+        // Actualizar progreso
+        $courseProgress->updateProgress($porcentaje);
+
+        // Si acaba de completarse, disparar evento
+        if (!$wasCompleted && $courseProgress->isCompleted()) {
+            event(new CourseCompleted($id_usuario, $id_periodocurso, $courseProgress));
+            \Log::info("Evento CourseCompleted disparado para usuario {$id_usuario}, curso {$id_periodocurso}");
+        }
     }
 }
