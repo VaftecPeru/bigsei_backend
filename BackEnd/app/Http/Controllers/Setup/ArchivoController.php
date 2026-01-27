@@ -76,6 +76,40 @@ class ArchivoController extends Controller
         return response($image)->header('Content-Type', 'image/png');
     }
 
+    /**
+     * Método público para visualizar imágenes sin autenticación
+     * Usado para mostrar imágenes de cursos en el catálogo público
+     */
+    public function imagenPublica($id_archivo)
+    {
+        $archivo = Archivo::find($id_archivo);
+        if(!$archivo) {
+            return response()->json(['error' => 'Archivo no encontrado'], 404);
+        }
+        
+        // Determinar el tipo de contenido basado en la extensión
+        $contentType = 'image/png';
+        $extension = strtolower($archivo->extension ?? 'png');
+        switch($extension) {
+            case 'jpg':
+            case 'jpeg':
+                $contentType = 'image/jpeg';
+                break;
+            case 'gif':
+                $contentType = 'image/gif';
+                break;
+            case 'webp':
+                $contentType = 'image/webp';
+                break;
+            case 'svg':
+                $contentType = 'image/svg+xml';
+                break;
+        }
+
+        $image = base64_decode($archivo->url);
+        return response($image)->header('Content-Type', $contentType);
+    }
+
     public static function registrarArchivo($file, $id_usuario, $tipo, $id_periodotarea = null, $id_periodotema = null, $id_persona = null)
     {
         $name = $file->getClientOriginalName();

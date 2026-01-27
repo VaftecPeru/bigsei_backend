@@ -436,13 +436,19 @@ Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], funct
 });
 Route::group(['prefix' => 'setup', 'middleware' => ['auth.jwt']], function () {
     Route::get('tipo-niveleducativos', [SetupTipoNivelEducativoController::class, 'index']);
-    Route::get('tipo-documentos', [SetupTipoDocumentoController::class, 'index']);
+
     Route::get('tipo-categorias', [SetupCategoriaController::class, 'index']);
     Route::get('visualizar-archivos/{id_archivo}', [SetupArchivoController::class, 'visualizar']);
     Route::get('archivos', [SetupArchivoController::class, 'index']);
     Route::get('descargar-archivos/{id_archivo}', [SetupArchivoController::class, 'descargar']);
     Route::get('archivos/{id_archivo}/visualizar-imagenes', [SetupArchivoController::class, 'imagen']);
 });
+
+// Ruta pública para visualizar imágenes de cursos (sin autenticación)
+Route::get('setup/archivos/{id_archivo}/imagen-publica', [SetupArchivoController::class, 'imagenPublica']);
+
+// Ruta pública para listar tipos de documentos
+Route::get('setup/tipo-documentos', [SetupTipoDocumentoController::class, 'index']);
 
 Route::group(['prefix' => 'web'], function () {
     Route::get('matriculas/curso-libres', [WebMatriculaController::class, 'cursoLibres']);
