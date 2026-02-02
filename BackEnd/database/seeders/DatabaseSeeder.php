@@ -19,6 +19,11 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
+            // Seeders de configuración inicial (ejecutar primero)
+            RoleSeeder::class,
+            SuperAdminSeeder::class,
+            
+            // Seeders de contenido de cursos
             CourseContentSeeder::class,
             CourseCompletionSeeder::class,
         ]);
