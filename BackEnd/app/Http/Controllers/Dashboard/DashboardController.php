@@ -71,18 +71,20 @@ class DashboardController extends Controller
         return $this->getCantidadPorRol('padre');
     }
 
-    public function getCantidadPorRol(string $nombre): JsonResponse
+    public function getCantidadPorRol(string $codigo): JsonResponse
     {
-        $rol = Rol::where('nombre', $nombre)->firstOrFail();
+        // Buscar por 'codigo' ya que la tabla rol tiene: nombre='Estudiante', codigo='student'
+        $rol = Rol::where('codigo', $codigo)->firstOrFail();
 
         $cantidad = UsuarioRol::where('id_rol', $rol->id_rol)->count();
 
         return response()->json(['cantidad' => $cantidad]);
     }
 
-    public function getCantidadUsuariosPorSede(string $nombre): JsonResponse
+    public function getCantidadUsuariosPorSede(string $codigo): JsonResponse
     {
-        $rol = Rol::where('nombre', $nombre)->firstOrFail();
+        // Buscar por 'codigo' ya que la tabla rol tiene: nombre='Estudiante', codigo='student'
+        $rol = Rol::where('codigo', $codigo)->firstOrFail();
 
         $resultados = UsuarioRol::join('usuario', 'usuario_rol.id_usuario', '=', 'usuario.id_usuario')
             ->join('empresa', 'usuario.id_empresa', '=', 'empresa.id_empresa')

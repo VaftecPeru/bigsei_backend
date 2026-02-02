@@ -27,7 +27,8 @@ class UsuarioController extends Controller
                 "b.numero_documento",
                 "b.direccion",
                 "b.id_archivo_foto",
-                DB::raw("d.nombre as rol_nombre")
+                DB::raw("d.nombre as rol_nombre"),
+                DB::raw("d.codigo as rol_codigo")
             )
             ->where("a.id_usuario", $user->id_usuario)
             ->where("c.es_principal", "1")
@@ -50,6 +51,7 @@ class UsuarioController extends Controller
             "direccion" => $usuario->direccion ?? "",
             "id_archivo_foto" => $usuario->id_archivo_foto ?? "",
             "rol_nombre" => $usuario->rol_nombre ?? "",
+            "rol_codigo" => $usuario->rol_codigo ?? "", // ✅ Agregado para validación de roles
             "razon_social" => $empresa->razon_social ?? "",
         ];
 
