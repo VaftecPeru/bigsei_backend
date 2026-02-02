@@ -67,6 +67,7 @@ use App\Http\Controllers\Setup\TipoPreguntaController as SetupTipoPreguntaContro
 use App\Http\Controllers\Setup\AulaController as SetupAulaController;
 use App\Http\Controllers\Setup\DiaController as SetupDiaController;
 use App\Http\Controllers\Superadministrador\SedeController;
+use App\Http\Controllers\Superadministrador\UsuarioController as SuperAdminUsuarioController;
 use App\Http\Controllers\Dashboard\DashboardController as SetupDashboardController;
 
 use App\Http\Controllers\Web\MatriculaController as WebMatriculaController;
@@ -124,6 +125,18 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
+    // Rutas de gestión de usuarios (NUEVO - UsuarioController implementado)
+    Route::get('usuarios', [SuperAdminUsuarioController::class, 'index']);
+    Route::get('usuarios/{id}', [SuperAdminUsuarioController::class, 'show']);
+    Route::post('usuarios', [SuperAdminUsuarioController::class, 'store']);
+    Route::put('usuarios/{id}', [SuperAdminUsuarioController::class, 'update']);
+    Route::delete('usuarios/{id}', [SuperAdminUsuarioController::class, 'destroy']);
+    Route::post('usuarios/{id}/asignar-rol', [SuperAdminUsuarioController::class, 'asignarRol']);
+    Route::post('usuarios/{id}/cambiar-sede', [SuperAdminUsuarioController::class, 'cambiarSede']);
+    Route::post('usuarios/{id}/reset-password', [SuperAdminUsuarioController::class, 'resetPassword']);
+    Route::post('usuarios/{id}/toggle-estado', [SuperAdminUsuarioController::class, 'toggleEstado']);
+    Route::get('roles', [SuperAdminUsuarioController::class, 'listarRoles']);
+    Route::get('sedes-listado', [SuperAdminUsuarioController::class, 'listarSedes']);
 });
 Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], function () {
     Route::get('estudiantes', [AdminEstudianteController::class, 'index']);
@@ -728,6 +741,23 @@ Route::middleware(['auth.jwt', 'checkRoleMW:estudiante'])->group(function () {
 // RUTAS PARA TOPICOS VALIDADA POR MIDDLEWARE AUTH (PARA TOKEN JWT) Y CHECKROLE (PARA VALIDAR ROL DEL TOKEN)
 Route::middleware(['auth.jwt', 'checkRoleMW:topico'])->group(function () {});
 
+
+//================================================================================================
+// RUTAS PARA GESTIÓN DE USUARIO LOGEADO (NUEVO - Reemplaza window.location.reload)
+//================================================================================================
+
+use App\Http\Controllers\UserController;
+
+Route::group(['prefix' => 'user', 'middleware' => ['CheckUserMW:user']], function () {
+    // Cambiar sede sin recargar página
+    Route::post('change-empresa', [UserController::class, 'changeEmpresa']);
+    // Cambiar rol sin recargar página
+    Route::post('change-rol', [UserController::class, 'changeRol']);
+    // Cambiar sede y rol simultáneamente
+    Route::post('change-sede-rol', [UserController::class, 'changeSedeAndRol']);
+    // Obtener datos actualizados del usuario
+    Route::get('me', [UserController::class, 'me']);
+});
 
 //================================================================================================
 

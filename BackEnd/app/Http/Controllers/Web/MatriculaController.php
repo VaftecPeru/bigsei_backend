@@ -172,7 +172,7 @@ class MatriculaController extends Controller
             $persona = Persona::where("numero_documento", $request->numero_documento)
                 ->where("id_tipodocumento", $request->id_tipodocumento)
                 ->first();
-
+//1.
             if (!$persona) {
                 // Si la persona no existe por documento, verificar correo
                 $correoEnUso = Usuario::where("email", $request->correo)->exists();
@@ -198,7 +198,7 @@ class MatriculaController extends Controller
             } else {
                  // Si existe, actualizamos datos de contacto si vinieron
                  $persona->update([
-                     "nombre_completo" => $request->nombre_completo, 
+                     "nombre_completo" => $request->nombre_completo,
                      "telefono" => $request->telefono,
                      "direccion" => $request->direccion,
                      "id_tiponiveleducativo" => $request->id_tiponiveleducativo ?? $persona->id_tiponiveleducativo,
@@ -222,7 +222,7 @@ class MatriculaController extends Controller
                     "id_usuario" => $persona->id_persona,
                     "email" => $request->correo,
                     "username" => $request->correo,
-                    "password" => Hash::make("123"), 
+                    "password" => Hash::make("123"),
                     "estado" => "1",
                     "fechareg" => now()
                 ]);
@@ -233,7 +233,7 @@ class MatriculaController extends Controller
             $usuarioRol = UsuarioRol::where('id_usuario', $persona->id_persona)
                 ->where('id_rol', $idRolStudent)
                 ->first();
-            
+
             if (!$usuarioRol) {
                 UsuarioRol::create([
                     "id_empresa" => $periodoCurso->id_empresa,
@@ -274,12 +274,12 @@ class MatriculaController extends Controller
 
             // 8. Registrar Pago y Vincular
             $metodoPago = \App\Models\MetodoPago::where('nombre', 'like', '%transferencia%')->first();
-            
+
             if ($metodoPago) {
                 $idMetodoPago = $metodoPago->idMetodoPago;
             } else {
                  $firstMp = \App\Models\MetodoPago::first();
-                 $idMetodoPago = $firstMp ? $firstMp->idMetodoPago : 1; 
+                 $idMetodoPago = $firstMp ? $firstMp->idMetodoPago : 1;
             }
 
             // Calcular montos (Asumiendo que el monto ingresado es el Total)
@@ -317,7 +317,7 @@ class MatriculaController extends Controller
             DB::commit();
 
             $result = Matricula::find($matricula->id_matricula); // Recarga para asegurar datos frescos
-            
+
             $response = $result->toArray();
             $response['token'] = $token;
             $response['es_nuevo_usuario'] = $esNuevoUsuario;
@@ -339,9 +339,9 @@ class MatriculaController extends Controller
                 'a.importe',
                 'a.tipo',
                 DB::raw("case when a.importe >= 100 then round((a.importe/12), 2) else null end as importe_mes"),
-                DB::raw("case 
-                    when a.importe >= 100 then 'Acceso Anual' 
-                    else 'Acceso Mensual' 
+                DB::raw("case
+                    when a.importe >= 100 then 'Acceso Anual'
+                    else 'Acceso Mensual'
                 end as tipo_descripcion"),
                 DB::raw("case when a.importe >= 100 then 'año' else 'mes' end as tipo_nombre")
             )

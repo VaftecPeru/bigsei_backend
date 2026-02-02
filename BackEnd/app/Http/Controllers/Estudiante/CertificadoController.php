@@ -240,8 +240,9 @@ class CertificadoController extends Controller
                 return response()->json(['mensaje' => 'Curso no encontrado'], 404);
             }
 
-            // Verificar que el curso está 100% completado
+            // 1. Verificar que el curso está 100% completado
             $progreso = $this->calcularProgresoCurso($id_usuario, $id_periodocurso);
+            //2. 
             if ($progreso['porcentaje'] < 100) {
                 return response()->json([
                     'mensaje' => 'Debe completar el 100% del curso para obtener el certificado',
@@ -250,7 +251,7 @@ class CertificadoController extends Controller
                 ], 400);
             }
 
-            // Verificar si ya existe un certificado para obtener su código (para regenerarlo con el nuevo diseño)
+            // Verificar si ya existe un certificado para obtener su código
             $certificadoExistente = Certificado::where('id_usuario', $id_usuario)
                 ->where('id_periodocurso', $id_periodocurso)
                 ->first();
@@ -324,7 +325,7 @@ class CertificadoController extends Controller
                     'codigo_certificado' => $certificado->codigo_certificado,
                     'fecha_emision' => $certificado->fecha_emision->format('d/m/Y'),
                     'nombre_curso' => $dataPdf['nombre_curso'],
-                    'ruta_descarga' => url('/api/estudiante/descargar-certificado/' . $certificado->id_certificado) 
+                    'ruta_descarga' => url('/api/estudiante/descargar-certificado/' . $certificado->id_certificado)
                 ],
             ], 201);
         } catch (\Exception $e) {
@@ -422,7 +423,7 @@ class CertificadoController extends Controller
             // Usamos lógica similar a MiAcademicoController pero necesitamos modelos Eloquent para facilitar las relaciones
             /*
             Consulta SQL equivalente:
-            select * from periodo_curso a 
+            select * from periodo_curso a
             inner join matricula_curso b on a.id_periodocurso = b.id_periodocurso
             inner join matricula c on b.id_matricula = c.id_matricula
             inner join curso d on a.id_curso = d.id_curso
@@ -458,7 +459,7 @@ class CertificadoController extends Controller
             $resultado = $cursos->getCollection()->map(function ($curso) use ($id_usuario) {
                 // Calcular progreso
                 $progreso = $this->calcularProgresoCurso($id_usuario, $curso->id_periodocurso);
-                
+
                 return [
                     'id_periodocurso' => $curso->id_periodocurso,
                     'nombre' => $curso->curso_nombre,
