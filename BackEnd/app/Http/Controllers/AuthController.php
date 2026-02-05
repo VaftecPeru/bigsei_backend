@@ -139,7 +139,7 @@ class AuthController extends Controller
             );
         }
 
-        $usuario = Usuario::select('usuario.*', "b.id_empresa", "b.id_rol", DB::raw("c.nombre as url_base"),
+        $usuario = Usuario::select('usuario.*', "b.id_empresa", "b.id_rol", DB::raw("c.codigo as url_base"),
                 DB::raw("d.nombre_completo as nombre_completop"))
             ->join('usuario_rol as b', 'usuario.id_usuario', 'b.id_usuario')
             ->join('rol as c', 'b.id_rol', 'c.id_rol')
