@@ -319,24 +319,31 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     // Hito 11: Descarga de certificado por course_id
     Route::get('certificates/{course_id}/download', [EstudianteCertificadoController::class, 'downloadCertificateByCourse']);
 });
-Route::group(['prefix' => 'padre'], function () {
-    // route
+Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], function () {
+    // Rutas específicas para el rol Padre
+    // TODO: Implementar endpoints según necesidades del rol
 });
-Route::group(['prefix' => 'tutor'], function () {
-    // route
+Route::group(['prefix' => 'tutor', 'middleware' => ['CheckUserRoleMW:tutor']], function () {
+    // Rutas específicas para el rol Tutor
+    // TODO: Implementar endpoints según necesidades del rol
 });
-Route::group(['prefix' => 'vendedor'], function () {
-    // route
+Route::group(['prefix' => 'vendedor', 'middleware' => ['CheckUserRoleMW:vendedor']], function () {
+    // Rutas específicas para el rol Vendedor
+    // TODO: Implementar endpoints según necesidades del rol
 });
-Route::group(['prefix' => 'bibliotecario'], function () {
-    // route
+Route::group(['prefix' => 'bibliotecario', 'middleware' => ['CheckUserRoleMW:bibliotecario']], function () {
+    // Rutas específicas para el rol Bibliotecario
+    // TODO: Implementar endpoints según necesidades del rol
 });
-Route::group(['prefix' => 'topicomedico'], function () {
-    // route
+Route::group(['prefix' => 'topicomedico', 'middleware' => ['CheckUserRoleMW:topicomedico']], function () {
+    // Rutas específicas para el rol Tópico Médico
+    // TODO: Implementar endpoints según necesidades del rol
 });
-Route::group(['prefix' => 'contador'], function () {
-    // route
+Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador']], function () {
+    // Rutas específicas para el rol Contador
+    // TODO: Implementar endpoints según necesidades del rol
 });
+
 Route::group(['prefix' => 'dashboard'], function () {
     //SUPERADMIN:
     Route::get('superadministrador/cantidad-sedes', [SetupDashboardController::class, 'getcantidadSedes']);
