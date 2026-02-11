@@ -56,7 +56,7 @@ class MembresiaTipoController extends Controller
                 "es_anual" => $membresiaTipo->es_anual,
                 "tipo_beneficios" => DB::table("tipo_beneficio as a")
                     ->join("membresia_tipo_beneficio as b", "a.id_tipobeneficio", "b.id_tipobeneficio")
-                    ->select("a.descripcion", "b.orden", ".esta_habilitado")
+                    ->select("a.descripcion", "b.orden", "b.esta_habilitado")
                     ->where("b.id_membresiatipo", $membresiaTipo->id_membresiatipo)
                     ->orderBy("orden", "asc")
                     ->get()

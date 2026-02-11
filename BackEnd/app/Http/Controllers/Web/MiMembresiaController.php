@@ -69,7 +69,7 @@ class MiMembresiaController extends Controller
         $membresia["id_membresiatipo"] = $request->id_membresiatipo;
         $membresia["precio"] = $request->precio;
         $membresia["fecha_inicio"] = now();
-        $membresia["fecha_fin"] = now();
+        $membresia["fecha_fin"] = $membresiaTipo->es_anual == '1' ? now()->addMonths(12) : now()->addMonth();
         $membresia["estado"] = "1";
         $membresia["id_usuarioreg"] = $user->id_usuario;
         $membresia["fechareg"] = now();

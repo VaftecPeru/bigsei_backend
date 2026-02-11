@@ -18,6 +18,9 @@ use App\Models\UsuarioRol;
 use App\Models\Pago;
 use App\Models\MatriculaPagos;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\GeneratedPasswordNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
@@ -217,12 +220,14 @@ class MatriculaController extends Controller
             }
 
             // 4. Asegurar Usuario
+            $plainPassword = null;
             if (!Usuario::find($persona->id_persona)) {
+                $plainPassword = Str::random(12);
                 Usuario::create([
                     "id_usuario" => $persona->id_persona,
                     "email" => $request->correo,
                     "username" => $request->correo,
-                    "password" => Hash::make("123"),
+                    "password" => Hash::make($plainPassword),
                     "estado" => "1",
                     "fechareg" => now()
                 ]);
@@ -315,6 +320,16 @@ class MatriculaController extends Controller
             $token = AuthController::resetToken($persona->id_persona, $periodoCurso->id_empresa, $idRolStudent);
 
             DB::commit();
+
+            // Enviar contraseña por email si es usuario nuevo
+            if ($plainPassword) {
+                try {
+                    Notification::route('mail', $request->correo)
+                        ->notify(new GeneratedPasswordNotification($plainPassword, $request->nombre_completo));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('No se pudo enviar email de contraseña: ' . $e->getMessage());
+                }
+            }
 
             $result = Matricula::find($matricula->id_matricula); // Recarga para asegurar datos frescos
 

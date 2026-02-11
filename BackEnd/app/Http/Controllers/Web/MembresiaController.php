@@ -13,6 +13,10 @@ use App\Models\Membresia;
 use App\Models\MembresiaTipo;
 use App\Models\UsuarioRol;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\GeneratedPasswordNotification;
 
 class MembresiaController extends Controller
 {
@@ -64,60 +68,75 @@ class MembresiaController extends Controller
             return response()->json('Error. El documento existe.', 400);
         }
 
-        $persona = [];
-        $persona["id_tipodocumento"] = $request->id_tipodocumento;
-        $persona["numero_documento"] = $request->numero_documento;
-        // $persona["nombre"] = $request->nombre_completo;
-        $persona["nombre_completo"] = $request->nombre_completo;
-        // $persona["fecha_nacimiento"] = $request->fecha_nacimiento;
-        $persona["telefono"] = $request->telefono;
-        $persona["direccion"] = $request->direccion;
-        $persona["correo"] = $request->correo;
-        // $persona["sexo"] = $request->sexo;
-        $persona["fechareg"] = now();
-        $persona["estado"] = '1';
-        $persona = Persona::create($persona);
+        try {
+            DB::beginTransaction();
 
-        $estudiante = [];
-        $estudiante["id_estudiante"] = $persona->id_persona;
-        // $estudiante["codigo"] = 1;
-        $estudiante["estado"] = "1";
-        $estudiante["fechareg"] = now();
-        $estudiante = Estudiante::create($estudiante);
+            $persona = [];
+            $persona["id_tipodocumento"] = $request->id_tipodocumento;
+            $persona["numero_documento"] = $request->numero_documento;
+            $persona["nombre_completo"] = $request->nombre_completo;
+            $persona["telefono"] = $request->telefono;
+            $persona["direccion"] = $request->direccion;
+            $persona["correo"] = $request->correo;
+            $persona["fechareg"] = now();
+            $persona["estado"] = '1';
+            $persona = Persona::create($persona);
 
-        $usuario = [];
-        $usuario["id_usuario"] = $persona->id_persona;
-        $usuario["email"] = $request->correo;
-        $usuario["username"] = $request->correo;
-        $usuario["password"] = Hash::make("123");
-        $usuario["estado"] = "1";
-        $usuario["fechareg"] = now();
-        $usuario = Usuario::create($usuario);
+            $estudiante = [];
+            $estudiante["id_estudiante"] = $persona->id_persona;
+            $estudiante["estado"] = "1";
+            $estudiante["fechareg"] = now();
+            $estudiante = Estudiante::create($estudiante);
 
-        $idRolStudent = 5;  // student
-        $usuarioRol = [];
-        // $usuarioRol["id_empresa"] = $periodoCurso->id_empresa;
-        $usuarioRol["id_usuario"] = $persona->id_persona;
-        $usuarioRol["id_rol"] = $idRolStudent;
-        $usuarioRol["es_principal"] = "1";
-        $usuarioRol = UsuarioRol::create($usuarioRol);
+            // Generar contraseña segura en lugar de "123"
+            $plainPassword = Str::random(12);
 
-        $membresia = [];
-        $membresia["id_persona"] = $persona->id_persona;
-        $membresia["id_membresiatipo"] = $request->id_membresiatipo;
-        $membresia["precio"] = $request->precio;
-        $membresia["fecha_inicio"] = now();
-        $membresia["fecha_fin"] = now();
-        $membresia["estado"] = "1";
-        // $membresia["id_usuarioreg"] = ;
-        $membresia["fechareg"] = now();
-        $membresia = Membresia::create($membresia);
+            $usuario = [];
+            $usuario["id_usuario"] = $persona->id_persona;
+            $usuario["email"] = $request->correo;
+            $usuario["username"] = $request->correo;
+            $usuario["password"] = Hash::make($plainPassword);
+            $usuario["estado"] = "1";
+            $usuario["fechareg"] = now();
+            $usuario = Usuario::create($usuario);
 
-        $token = AuthController::resetToken($persona->id_persona, null, $idRolStudent);
+            $idRolStudent = 5;  // student
+            $usuarioRol = [];
+            $usuarioRol["id_usuario"] = $persona->id_persona;
+            $usuarioRol["id_rol"] = $idRolStudent;
+            $usuarioRol["es_principal"] = "1";
+            $usuarioRol = UsuarioRol::create($usuarioRol);
 
-        $membresia = Membresia::find($membresia->id_membresia);
-        $membresia->token = $token;
+            $membresia = [];
+            $membresia["id_persona"] = $persona->id_persona;
+            $membresia["id_membresiatipo"] = $request->id_membresiatipo;
+            $membresia["precio"] = $request->precio;
+            $membresia["fecha_inicio"] = now();
+            $membresia["fecha_fin"] = $membresiaTipo->es_anual == '1' ? now()->addMonths(12) : now()->addMonth();
+            $membresia["estado"] = "1";
+            $membresia["fechareg"] = now();
+            $membresia = Membresia::create($membresia);
 
-        return response()->json($membresia);
+            $token = AuthController::resetToken($persona->id_persona, null, $idRolStudent);
+
+            DB::commit();
+
+            // Enviar contraseña por email (fuera de la transacción)
+            try {
+                Notification::route('mail', $request->correo)
+                    ->notify(new GeneratedPasswordNotification($plainPassword, $request->nombre_completo));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('No se pudo enviar email de contraseña: ' . $e->getMessage());
+            }
+
+            $membresia = Membresia::find($membresia->id_membresia);
+            $membresia->token = $token;
+
+            return response()->json($membresia);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json('Error al crear la membresía: ' . $e->getMessage(), 500);
+        }
     }
 }

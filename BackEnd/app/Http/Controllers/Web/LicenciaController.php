@@ -14,6 +14,9 @@ use App\Models\Licencia;
 use App\Models\LicenciaTipo;
 use App\Models\UsuarioRol;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\GeneratedPasswordNotification;
 
 class LicenciaController extends Controller
 {
@@ -77,59 +80,80 @@ class LicenciaController extends Controller
             return response()->json('Error. El número de documento empresa existe.', 400);
         }
 
-        $persona = [];
-        $persona["id_tipodocumento"] = $request->id_tipodocumento;
-        $persona["numero_documento"] = $request->numero_documento;
-        $persona["nombre_completo"] = $request->nombre_completo;
-        $persona["telefono"] = $request->telefono;
-        $persona["direccion"] = $request->direccion;
-        $persona["correo"] = $request->correo;
-        $persona["fechareg"] = now();
-        $persona["estado"] = '1';
-        $persona = Persona::create($persona);
+        try {
+            DB::beginTransaction();
 
-        $empresa = [];
-        $empresa["id_tipodocumento"] = $request->empresa_id_tipodocumento;
-        $empresa["numero_documento"] = $request->empresa_numero_documento;
-        $empresa["razon_social"] = $request->empresa_razon_social;
-        $empresa["tipo_relacion"] = "C";
-        $empresa["correo"] = $request->correo;
-        $empresa["contacto"] = $request->nombre_completo;
-        $empresa = Empresa::create($empresa);
+            $persona = [];
+            $persona["id_tipodocumento"] = $request->id_tipodocumento;
+            $persona["numero_documento"] = $request->numero_documento;
+            $persona["nombre_completo"] = $request->nombre_completo;
+            $persona["telefono"] = $request->telefono;
+            $persona["direccion"] = $request->direccion;
+            $persona["correo"] = $request->correo;
+            $persona["fechareg"] = now();
+            $persona["estado"] = '1';
+            $persona = Persona::create($persona);
 
-        $usuario = [];
-        $usuario["id_usuario"] = $persona->id_persona;
-        $usuario["email"] = $request->correo;
-        $usuario["username"] = $request->correo;
-        $usuario["password"] = Hash::make("123");
-        $usuario["estado"] = "1";
-        $usuario["fechareg"] = now();
-        $usuario = Usuario::create($usuario);
+            $empresa = [];
+            $empresa["id_tipodocumento"] = $request->empresa_id_tipodocumento;
+            $empresa["numero_documento"] = $request->empresa_numero_documento;
+            $empresa["razon_social"] = $request->empresa_razon_social;
+            $empresa["tipo_relacion"] = "C";
+            $empresa["correo"] = $request->correo;
+            $empresa["contacto"] = $request->nombre_completo;
+            $empresa = Empresa::create($empresa);
 
-        $idRolAdmin = 2;  // admin
-        $usuarioRol = [];
-        $usuarioRol["id_empresa"] = $empresa->id_empresa;
-        $usuarioRol["id_usuario"] = $persona->id_persona;
-        $usuarioRol["id_rol"] = $idRolAdmin;
-        $usuarioRol["es_principal"] = "1";
-        $usuarioRol = UsuarioRol::create($usuarioRol);
+            // Generar contraseña segura en lugar de "123"
+            $plainPassword = Str::random(12);
 
-        $licencia = [];
-        $licencia["id_empresa"] = $empresa->id_empresa;
-        $licencia["id_licenciatipo"] = $request->id_licenciatipo;
-        $licencia["precio"] = $request->precio;
-        $licencia["fecha_inicio"] = now();
-        $licencia["fecha_fin"] = now()->addYear();
-        $licencia["estado"] = "1";
-        $licencia["fechareg"] = now();
-        $licencia = Licencia::create($licencia);
+            $usuario = [];
+            $usuario["id_usuario"] = $persona->id_persona;
+            $usuario["email"] = $request->correo;
+            $usuario["username"] = $request->correo;
+            $usuario["password"] = Hash::make($plainPassword);
+            $usuario["estado"] = "1";
+            $usuario["fechareg"] = now();
+            $usuario = Usuario::create($usuario);
 
-        $token = AuthController::resetToken($persona->id_persona, $empresa->id_empresa, $idRolAdmin);
+            $idRolAdmin = 2;  // admin
+            $usuarioRol = [];
+            $usuarioRol["id_empresa"] = $empresa->id_empresa;
+            $usuarioRol["id_usuario"] = $persona->id_persona;
+            $usuarioRol["id_rol"] = $idRolAdmin;
+            $usuarioRol["es_principal"] = "1";
+            $usuarioRol = UsuarioRol::create($usuarioRol);
 
-        $licencia = Licencia::find($licencia->id_licencia);
-        $licencia->token = $token;
+            $licencia = [];
+            $licencia["id_empresa"] = $empresa->id_empresa;
+            $licencia["id_licenciatipo"] = $request->id_licenciatipo;
+            $licencia["precio"] = $request->precio;
+            $licencia["fecha_inicio"] = now();
+            $licencia["fecha_fin"] = now()->addYear();
+            $licencia["estado"] = "1";
+            $licencia["fechareg"] = now();
+            $licencia = Licencia::create($licencia);
 
-        return response()->json($licencia);
+            $token = AuthController::resetToken($persona->id_persona, $empresa->id_empresa, $idRolAdmin);
+
+            DB::commit();
+
+            // Enviar contraseña por email (fuera de la transacción)
+            try {
+                Notification::route('mail', $request->correo)
+                    ->notify(new GeneratedPasswordNotification($plainPassword, $request->nombre_completo));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('No se pudo enviar email de contraseña: ' . $e->getMessage());
+            }
+
+            $licencia = Licencia::find($licencia->id_licencia);
+            $licencia->token = $token;
+
+            return response()->json($licencia);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json('Error al crear la licencia: ' . $e->getMessage(), 500);
+        }
     }
 
     public function tipoActivos(Request $request)
@@ -157,7 +181,7 @@ class LicenciaController extends Controller
                 "precio" => $licenciaTipo->precio,
                 "tipo_beneficios" => DB::table("tipo_beneficio as a")
                     ->join("licencia_tipo_beneficio as b", "a.id_tipobeneficio", "b.id_tipobeneficio")
-                    ->select("a.descripcion", "b.orden", ".esta_habilitado")
+                    ->select("a.descripcion", "b.orden", "b.esta_habilitado")
                     ->where("b.id_licenciatipo", $licenciaTipo->id_licenciatipo)
                     ->orderBy("orden", "asc")
                     ->get()

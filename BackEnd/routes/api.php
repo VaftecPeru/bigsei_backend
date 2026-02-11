@@ -502,8 +502,8 @@ Route::group(['prefix' => 'web', 'middleware' => ['CheckUserMW:web']], function 
 //================================================================================================
 // RUTAS AUTH
 
-// RUTA PARA INICIAR SESION
-Route::post('login', [AuthController::class, 'login']);
+// RUTA PARA INICIAR SESION (con rate limiting: 5 intentos por 5 minutos)
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,5');
 Route::post('logout', [AuthController::class, 'logout']);
 Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 Route::post('update-activity', [AuthController::class, 'updateLastActivity']);

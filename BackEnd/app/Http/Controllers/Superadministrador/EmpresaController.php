@@ -216,7 +216,7 @@ class EmpresaController extends Controller
     {
         $empresa = Empresa::find($id_empresa);
         if(!$empresa) {
-            return response()->json("Estudiante no encontrado.", 400);
+            return response()->json("Empresa no encontrada.", 400);
         }
 
         $empresa->delete();

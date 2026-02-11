@@ -3,6 +3,8 @@
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckUser;
 use App\Http\Middleware\CheckUserRole;
+use App\Http\Middleware\TenantMiddleware;
+use App\Http\Middleware\CheckLicencia;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
             //MIDDLEWARE PARA VERIFICAR ROL
             'CheckUserRoleMW' =>CheckUserRole::class,
             'CheckUserMW' =>CheckUser::class,
+            // Middleware para filtrar por empresa (Bug 4)
+            'tenant' => TenantMiddleware::class,
+            // Middleware para verificar licencia vigente (Bug 5)
+            'check.licencia' => CheckLicencia::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
