@@ -33,6 +33,10 @@ use App\Http\Controllers\Director\EstudianteController as DirectorEstudianteCont
 use App\Http\Controllers\Director\DocenteController as DirectorDocenteController;
 use App\Http\Controllers\Director\AcademicoController as DirectorAcademicoController;
 use App\Http\Controllers\Director\AsistenciaController as DirectorAsistenciaController;
+use App\Http\Controllers\Director\PendienteController as DirectorPendienteController;
+use App\Http\Controllers\Director\DirectorDashboardController;
+use App\Http\Controllers\Director\TramiteDirectorController as DirectorTramiteController;
+use App\Http\Controllers\Director\ReporteDirectorController as DirectorReporteController;
 use App\Http\Controllers\Docente\AcademicoController as DocenteAcademicoController;
 use App\Http\Controllers\Docente\ArchivoController as DocenteArchivoController;
 use App\Http\Controllers\Docente\MensajeriaController as DocenteMensajeriaController;
@@ -223,6 +227,30 @@ Route::group(['prefix' => 'director', 'middleware' => ['CheckUserRoleMW:director
     Route::get('academico-periodo-cursos', [DirectorAcademicoController::class, 'indexPeriodoCurso']);
     Route::get('academico-plan-estudios', [DirectorAcademicoController::class, 'indexPlanEstudio']);
     Route::get('asistencias/estadisticas', [DirectorAsistenciaController::class, 'estadisticas']);
+
+    // Pendientes CRUD
+    Route::get('pendientes', [DirectorPendienteController::class, 'index']);
+    Route::post('pendientes', [DirectorPendienteController::class, 'store']);
+    Route::put('pendientes/{id}', [DirectorPendienteController::class, 'update']);
+    Route::delete('pendientes/{id}', [DirectorPendienteController::class, 'destroy']);
+
+    // Dashboard indicadores educativos
+    Route::get('dashboard/indicadores', [DirectorDashboardController::class, 'indicadoresEducativos']);
+    Route::get('dashboard/comparar-periodos', [DirectorDashboardController::class, 'compararPeriodos']);
+    Route::get('dashboard/progreso-carrera', [DirectorDashboardController::class, 'progresoCarrera']);
+    Route::get('dashboard/rendimiento-docentes', [DirectorDashboardController::class, 'rendimientoDocentes']);
+    Route::get('dashboard/estudiantes-riesgo', [DirectorDashboardController::class, 'estudiantesEnRiesgo']);
+
+    // Tramites (solo lectura)
+    Route::get('tramites', [DirectorTramiteController::class, 'index']);
+    Route::get('tramites/estadisticas', [DirectorTramiteController::class, 'estadisticas']);
+
+    // Reportes descargables
+    Route::get('reportes/estudiantes/pdf', [DirectorReporteController::class, 'reporteEstudiantesPdf']);
+    Route::get('reportes/estudiantes/excel', [DirectorReporteController::class, 'reporteEstudiantesExcel']);
+    Route::get('reportes/docentes/pdf', [DirectorReporteController::class, 'reporteDocentesPdf']);
+    Route::get('reportes/docentes/excel', [DirectorReporteController::class, 'reporteDocentesExcel']);
+    Route::get('reportes/rendimiento/pdf', [DirectorReporteController::class, 'reporteRendimientoPdf']);
 });
 Route::group(['prefix' => 'docente', 'middleware' => ['CheckUserRoleMW:docente']], function () {
     Route::get('academico-periodos', [DocenteAcademicoController::class, 'index']);
