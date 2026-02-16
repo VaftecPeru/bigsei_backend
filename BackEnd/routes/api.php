@@ -180,6 +180,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::delete('academico-periodo-curso-precios/{id_periodocursoprecio}', [AdminAcademicoController::class, 'destroyPeriodoCursoPrecio']);
     // Route::get('academico-plan-estudio-ciclos', [AdminAcademicoController::class, 'indexPlanEstudioCiclo']);
     // Route::get('academico-plan-estudio-cursos', [AdminAcademicoController::class, 'indexPlanEstudioCurso']);
+    Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
+    Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
     Route::get('academico-carreras', [AdminAcademicoController::class, 'indexCarrera']);
     Route::get('mensajerias/grupos', [AdminMensajeriaController::class, 'indexGrupo']);
     Route::post('mensajerias/grupos', [AdminMensajeriaController::class, 'storeGrupo']);
