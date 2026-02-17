@@ -85,6 +85,7 @@ use App\Http\Controllers\Web\CarreraController as WebCarreraController;
 use App\Http\Controllers\Web\TipoCategoriaController as WebTipoCategoriaController;
 use App\Http\Controllers\Web\TemaController as WebTemaController;
 use App\Http\Controllers\Web\EmpresaController as WebEmpresaController;
+use App\Http\Controllers\Web\PlanEstudioController as WebPlanEstudioController;
 use App\Http\Controllers\Web\MiMembresiaController as WebMiMembresiaController;
 use App\Http\Controllers\Web\MiMatriculaController as WebMiMatriculaController;
 
@@ -520,6 +521,8 @@ Route::group(['prefix' => 'web'], function () {
     Route::get('tipo-categorias/por-temas', [WebTipoCategoriaController::class, 'porTemas']);
     Route::get('temas', [WebTemaController::class, 'index']);
     Route::get('empresas', [WebEmpresaController::class, 'index']);
+    Route::get('planes-publicados', [WebPlanEstudioController::class, 'publicados']);
+    Route::get('planes-publicados/{id_planestudio}', [WebPlanEstudioController::class, 'showPublicado']);
 });
 Route::group(['prefix' => 'web', 'middleware' => ['CheckUserMW:web']], function () {
     Route::get('mis-cursos', [WebMisCursosController::class, 'index']);
@@ -797,4 +800,10 @@ Route::group(['prefix' => 'user', 'middleware' => ['CheckUserMW:user']], functio
 });
 
 //================================================================================================
+
+//================================================================================================
+// RUTAS PÚBLICAS (SIN AUTENTICACIÓN) - Portada
+//================================================================================================
+Route::get('plan-estudios-publicados', [WebPlanEstudioController::class, 'publicados']);
+Route::get('plan-estudios-publicados/{id_planestudio}', [WebPlanEstudioController::class, 'showPublicado']);
 

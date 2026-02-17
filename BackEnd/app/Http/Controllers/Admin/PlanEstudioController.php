@@ -68,7 +68,7 @@ class PlanEstudioController extends Controller
                 "a.estado",
                 "a.esta_publicado",
                 DB::raw("b.nombre as carrera_nombre"),
-                DB::raw("case when a.estado = 'A' then 'Activo' else 'Desactivo' end as estado_descripcion")
+                DB::raw("case when a.estado = '1' then 'Activo' else 'Desactivo' end as estado_descripcion")
             )
             ->where("a.id_empresa", $user->id_empresa)
             ->where("a.id_planestudio", $id_planestudio)

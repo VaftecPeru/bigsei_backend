@@ -17,6 +17,18 @@ use App\Models\PlanEstudioCurso;
 
 class AcademicoController extends Controller
 {
+    /**
+     * Normaliza un texto de búsqueda: quita acentos, reemplaza espacios por %.
+     */
+    private function normalizeSearch(string $text): string
+    {
+        $normalized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        if ($normalized === false) {
+            $normalized = $text;
+        }
+        return str_replace(' ', '%', $normalized);
+    }
+
     public function indexCarrera(Request $request)
     {
         $user = $request->sessionUser;
@@ -29,9 +41,7 @@ class AcademicoController extends Controller
             ->where("a.id_empresa", $user->id_empresa);
 
         if(isset($request->text_search)) {
-            $texto = strtr(utf8_decode($request->text_search), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = strtr(utf8_decode($texto), utf8_decode('àáâãäçèéêëìíîïññòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiin?ooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = str_replace(' ', '%', $texto);
+            $texto = $this->normalizeSearch($request->text_search);
             $result->whereRaw("upper(concat(a.nombre)) LIKE upper( ? )", ['%'.$texto.'%']);
         }
         if(isset($request->id_periodo)) {
@@ -55,19 +65,23 @@ class AcademicoController extends Controller
         }
         $user = $request->sessionUser;
 
-        $paginate = DB::table("periodo as a")
-            ->join("periodo_ciclo as b", "a.id_periodo", DB::raw("b.id_periodo and a.id_empresa = ".$user->id_empresa." and a.id_periodo = ".$request->id_periodo))
-            ->rightJoin("carrera as c", "b.id_carrera", "c.id_carrera")
+        // FIX: Se eliminó la concatenación directa (SQL injection) y se usan where() seguros
+        $paginate = DB::table("carrera as c")
+            ->leftJoin("periodo_ciclo as b", function ($join) use ($user, $request) {
+                $join->on("c.id_carrera", "=", "b.id_carrera");
+                if (isset($request->id_periodo)) {
+                    $join->where("b.id_periodo", "=", $request->id_periodo);
+                }
+                $join->where("b.id_empresa", "=", $user->id_empresa);
+            })
             ->select(
                 "c.id_carrera",
                 DB::raw("c.nombre as carrera_nombre"),
-                DB::raw("sum(case when a.id_periodo is not null then 1 else 0 end) as total_ciclos")
+                DB::raw("sum(case when b.id_periodociclo is not null then 1 else 0 end) as total_ciclos")
             );
 
         if(isset($request->text_search)) {
-            $texto = strtr(utf8_decode($request->text_search), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = strtr(utf8_decode($texto), utf8_decode('àáâãäçèéêëìíîïññòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiin?ooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = str_replace(' ', '%', $texto);
+            $texto = $this->normalizeSearch($request->text_search);
             $paginate->whereRaw("upper(concat(c.nombre)) LIKE upper( ? )", ['%'.$texto.'%']);
         }
 
@@ -96,14 +110,13 @@ class AcademicoController extends Controller
                 "fecha_ini",
                 "fecha_fin",
                 "estado",
-                DB::raw("case when estado = '1' then 'Creado' else 'Pendiente' end as estado_descripcion")
+                // FIX: Mapeo consistente con el frontend
+                DB::raw("case when estado = '1' then 'Activo' else 'Inactivo' end as estado_descripcion")
             )
             ->where("id_empresa", $user->id_empresa);
 
         if(isset($request->text_search)) {
-            $texto = strtr(utf8_decode($request->text_search), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = strtr(utf8_decode($texto), utf8_decode('àáâãäçèéêëìíîïññòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiin?ooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = str_replace(' ', '%', $texto);
+            $texto = $this->normalizeSearch($request->text_search);
             $paginate->whereRaw("upper(concat(nombre, descripcion)) LIKE upper( ? )", ['%'.$texto.'%']);
         }
 
@@ -113,8 +126,11 @@ class AcademicoController extends Controller
         return response()->json($paginate);
     }
 
-    public function showPeriodo($id_periodo)
+    public function showPeriodo(Request $request, $id_periodo)
     {
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+
         $result = DB::table("periodo")
             ->select(
                 "id_periodo",
@@ -126,7 +142,12 @@ class AcademicoController extends Controller
                 "esta_abierto"
             )
             ->where("id_periodo", $id_periodo)
+            ->where("id_empresa", $user->id_empresa)
             ->first();
+
+        if (!$result) {
+            return response()->json("¡Atención! Período no encontrado.", 400);
+        }
 
         return response()->json($result);
     }
@@ -135,13 +156,16 @@ class AcademicoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "nombre" => "required|string|max:255",
-            "fecha_ini" => "required",
-            "fecha_fin" => "required",
+            "fecha_ini" => "required|date",
+            "fecha_fin" => "required|date|after_or_equal:fecha_ini",
             "descripcion" => "required",
         ], [
             "nombre.required" => "El nombre del periodo es requerido",
             "fecha_ini.required" => "La fecha de inicio es requerida",
+            "fecha_ini.date" => "La fecha de inicio debe ser una fecha válida",
             "fecha_fin.required" => "La fecha de fin es requerida",
+            "fecha_fin.date" => "La fecha de fin debe ser una fecha válida",
+            "fecha_fin.after_or_equal" => "La fecha de fin debe ser igual o posterior a la de inicio",
             "descripcion.required" => "La descripción es requerida",
         ]);
 
@@ -172,13 +196,16 @@ class AcademicoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'fecha_ini' => 'required',
-            'fecha_fin' => 'required',
+            'fecha_ini' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
             "descripcion" => "required",
         ], [
-            'nombre.required' => 'El nombre del perìodo es requerido',
+            'nombre.required' => 'El nombre del período es requerido',
             'fecha_ini.required' => 'La fecha de inicio es requerida',
+            'fecha_ini.date' => 'La fecha de inicio debe ser una fecha válida',
             'fecha_fin.required' => 'La fecha de fin es requerida',
+            'fecha_fin.date' => 'La fecha de fin debe ser una fecha válida',
+            'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la de inicio',
             "descripcion.required" => "La descripción es requerida",
         ]);
 
@@ -187,7 +214,11 @@ class AcademicoController extends Controller
                 implode(",",$validator->messages()->all()), 400);
         }
 
-        $periodo = Periodo::find($id_periodo);
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+        $periodo = Periodo::where("id_periodo", $id_periodo)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
 
         if(!$periodo) {
             return response()->json("¡Atención! El periodo no existe.", 400);
@@ -205,9 +236,14 @@ class AcademicoController extends Controller
         return response()->json($result);
     }
 
-    public function destroyPeriodo($id_periodo)
+    public function destroyPeriodo(Request $request, $id_periodo)
     {
-        $periodo = Periodo::find($id_periodo);
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+        $periodo = Periodo::where("id_periodo", $id_periodo)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
+
         if(!$periodo) {
             return response()->json("¡Atención! Periodo no encontrado.", 400);
         }
@@ -289,9 +325,7 @@ class AcademicoController extends Controller
             $paginate->where("a.id_carrera", $request->id_carrera);
         }
         if(isset($request->text_search)) {
-            $texto = strtr(utf8_decode($request->text_search), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = strtr(utf8_decode($texto), utf8_decode('àáâãäçèéêëìíîïññòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiin?ooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = str_replace(' ', '%', $texto);
+            $texto = $this->normalizeSearch($request->text_search);
             $paginate->whereRaw("upper(concat(a.codigo, a.descripcion)) LIKE upper( ? )", ['%'.$texto.'%']);
         }
 
@@ -341,11 +375,11 @@ class AcademicoController extends Controller
             "id_planestudiociclo" => "required",
         ], [
             "id_periodo.required" => "El periodo es requerido",
-            "codigo.required" => "El còdigo es requerido",
+            "codigo.required" => "El código es requerido",
             "id_carrera.required" => "La carrera es requerida",
-            "id_tituloacademico.required" => "La título académico es requerida",
-            "id_tipotituloacademico.required" => "La título académico(especificado) es requerida",
-            "estado.required" => "La estado es requerida",
+            "id_tituloacademico.required" => "El título académico es requerido",
+            "id_tipotituloacademico.required" => "El título académico (especificado) es requerido",
+            "estado.required" => "El estado es requerido",
             "id_ciclo.required" => "El ciclo es requerido",
             "id_planestudiociclo.required" => "El ciclo de plan es requerido",
         ]);
@@ -400,11 +434,11 @@ class AcademicoController extends Controller
             "id_planestudiociclo" => "required",
         ], [
             "id_periodo.required" => "El periodo es requerido",
-            "codigo.required" => "El còdigo es requerido",
+            "codigo.required" => "El código es requerido",
             "id_carrera.required" => "La carrera es requerida",
-            "id_tituloacademico.required" => "La título académico es requerida",
-            "id_tipotituloacademico.required" => "La título académico(especificado) es requerida",
-            "estado.required" => "La estado es requerida",
+            "id_tituloacademico.required" => "El título académico es requerido",
+            "id_tipotituloacademico.required" => "El título académico (especificado) es requerido",
+            "estado.required" => "El estado es requerido",
             "id_ciclo.required" => "El ciclo es requerido",
             "id_planestudiociclo.required" => "El ciclo de plan es requerido",
         ]);
@@ -416,7 +450,10 @@ class AcademicoController extends Controller
 
         $user = $request->sessionUser;
 
-        $periodoCiclo = PeriodoCiclo::find($id_periodociclo);
+        // FIX: Filtrar por id_empresa
+        $periodoCiclo = PeriodoCiclo::where("id_periodociclo", $id_periodociclo)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
 
         if(!$periodoCiclo) {
             return response()->json("¡Atención! El periodo y ciclo no existe.", 400);
@@ -449,9 +486,14 @@ class AcademicoController extends Controller
         return response()->json($result);
     }
 
-    public function destroyPeriodoCiclo($id_periodociclo)
+    public function destroyPeriodoCiclo(Request $request, $id_periodociclo)
     {
-        $periodoCiclo = PeriodoCiclo::find($id_periodociclo);
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+        $periodoCiclo = PeriodoCiclo::where("id_periodociclo", $id_periodociclo)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
+
         if(!$periodoCiclo) {
             return response()->json("¡Atención! Periodo y ciclo no encontrado.", 400);
         }
@@ -518,9 +560,7 @@ class AcademicoController extends Controller
             $paginate->where("a.id_periodociclo", $request->id_periodociclo);
         }
         if(isset($request->text_search)) {
-            $texto = strtr(utf8_decode($request->text_search), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = strtr(utf8_decode($texto), utf8_decode('àáâãäçèéêëìíîïññòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiin?ooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
-            $texto = str_replace(' ', '%', $texto);
+            $texto = $this->normalizeSearch($request->text_search);
             $paginate->whereRaw("upper(concat(b.nombre_completo, c.nombre)) LIKE upper( ? )", ['%'.$texto.'%']);
         }
 
@@ -702,7 +742,10 @@ class AcademicoController extends Controller
 
         $user = $request->sessionUser;
 
-        $periodoCurso = PeriodoCurso::find($id_periodocurso);
+        // FIX: Filtrar por id_empresa
+        $periodoCurso = PeriodoCurso::where("id_periodocurso", $id_periodocurso)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
         if(!$periodoCurso) {
             return response()->json("El periodo y curso no existe.", 400);
         }
@@ -748,9 +791,14 @@ class AcademicoController extends Controller
         return response()->json($result);
     }
 
-    public function destroyPeriodoCurso($id_periodocurso)
+    public function destroyPeriodoCurso(Request $request, $id_periodocurso)
     {
-        $periodoCurso = PeriodoCurso::find($id_periodocurso);
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+        $periodoCurso = PeriodoCurso::where("id_periodocurso", $id_periodocurso)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
+
         if(!$periodoCurso) {
             return response()->json("¡Atención! Periodo y curso no encontrado.", 400);
         }
@@ -820,9 +868,14 @@ class AcademicoController extends Controller
         return response()->json($result);
     }
 
-    public function destroyPeriodoCursoPrecio($id_periodocursoprecio)
+    public function destroyPeriodoCursoPrecio(Request $request, $id_periodocursoprecio)
     {
-        $periodoCursoPrecio = PeriodoCursoPrecio::find($id_periodocursoprecio);
+        // FIX: Filtrar por id_empresa para evitar IDOR
+        $user = $request->sessionUser;
+        $periodoCursoPrecio = PeriodoCursoPrecio::where("id_periodocursoprecio", $id_periodocursoprecio)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
+
         if(!$periodoCursoPrecio) {
             return response()->json("Precio no encontrado.", 400);
         }
@@ -831,53 +884,6 @@ class AcademicoController extends Controller
 
         return response()->json([]);
     }
-
-    // public function indexPlanEstudioCiclo(Request $request)
-    // {
-    //     $user = $request->sessionUser;
-    //     $ciclos = DB::table("plan_estudio_ciclo as a")
-    //         ->join("plan_estudio as b", "a.id_planestudio", "b.id_planestudio")
-    //         ->join("ciclo as c", "a.id_ciclo", "c.id_ciclo")
-    //         ->select(
-    //             "a.id_planestudiociclo",
-    //             "a.id_ciclo",
-    //             DB::raw("c.nombre as ciclo_nombre"),
-    //             "c.orden"
-    //         )
-    //         ->where("b.id_empresa", $user->id_empresa);
-
-    //     if(isset($request->id_carrera)) {
-    //         $ciclos->where("b.id_carrera", $request->id_carrera);
-    //     }
-
-    //     $ciclos->orderBy("orden", "asc");
-    //     $ciclos->orderBy("id_planestudiociclo", "asc");
-    //     $ciclos = $ciclos->get();
-
-    //     return response()->json($ciclos);
-    // }
-
-    // public function indexPlanEstudioCurso(Request $request)
-    // {
-    //     $user = $request->sessionUser;
-    //     $ciclos = DB::table("plan_estudio_curso as a")
-    //         ->join("curso as b", "a.id_curso", "b.id_curso")
-    //         ->select(
-    //             "a.id_planestudiocurso",
-    //             "a.id_curso",
-    //             DB::raw("b.nombre as curso_nombre")
-    //         )
-    //         ->where("a.id_empresa", $user->id_empresa);
-
-    //     if(isset($request->id_planestudiociclo)) {
-    //         $ciclos->where("a.id_planestudiociclo", $request->id_planestudiociclo);
-    //     }
-
-    //     $ciclos->orderBy("id_planestudiocurso", "asc");
-    //     $ciclos = $ciclos->get();
-
-    //     return response()->json($ciclos);
-    // }
 
     public function indexPeriodoHorario(Request $request)
     {
@@ -888,7 +894,8 @@ class AcademicoController extends Controller
         }
         $user = $request->sessionUser;
         $fechaActual = date("Y-m-d");
-        $lunes = date("Y-m-d", strtotime("last monday", strtotime($fechaActual)));
+        // FIX: "monday this week" funciona correctamente incluso si hoy es lunes
+        $lunes = date("Y-m-d", strtotime("monday this week", strtotime($fechaActual)));
 
         $paginate = DB::table("periodo as a")
             ->join("periodo_ciclo as b", "a.id_periodo", "b.id_periodo")
@@ -983,7 +990,10 @@ class AcademicoController extends Controller
 
         $user = $request->sessionUser;
 
-        $periodoCurso = PeriodoCurso::find($request->id_periodocurso);
+        // FIX: Verificar que el curso pertenece a la empresa
+        $periodoCurso = PeriodoCurso::where("id_periodocurso", $request->id_periodocurso)
+            ->where("id_empresa", $user->id_empresa)
+            ->first();
         if(!$periodoCurso) {
             return response()->json("¡Atención! Curso no encontrado.", 400);
         }
@@ -1024,30 +1034,48 @@ class AcademicoController extends Controller
                 implode(",",$validator->messages()->all()), 400);
         }
 
-        $periodoHorario = PeriodoHorario::find($id_periodohorario);
+        // FIX: Filtrar por id_empresa a través del periodoCurso
+        $user = $request->sessionUser;
+        $periodoHorario = DB::table("periodo_horario as ph")
+            ->join("periodo_curso as pc", "ph.id_periodocurso", "pc.id_periodocurso")
+            ->where("ph.id_periodohorario", $id_periodohorario)
+            ->where("pc.id_empresa", $user->id_empresa)
+            ->select("ph.id_periodohorario")
+            ->first();
+
         if(!$periodoHorario) {
             return response()->json("¡Atención! Horario no encontrado.", 400);
         }
 
+        $horario = PeriodoHorario::find($id_periodohorario);
         $periodoHorarioEdit = [];
         $periodoHorarioEdit["id_periodocurso"] = $request->id_periodocurso;
         $periodoHorarioEdit["id_dia"] = $request->id_dia;
         $periodoHorarioEdit["id_aula"] = $request->id_aula;
         $periodoHorarioEdit["hora_inicio"] = $request->hora_inicio;
         $periodoHorarioEdit["hora_fin"] = $request->hora_fin;
-        $periodoHorario->update($periodoHorarioEdit);
+        $horario->update($periodoHorarioEdit);
 
-        return response()->json($periodoHorario);
+        return response()->json($horario);
     }
 
-    public function destroyPeriodoHorario($id_periodohorario)
+    public function destroyPeriodoHorario(Request $request, $id_periodohorario)
     {
-        $periodoHorario = PeriodoHorario::find($id_periodohorario);
+        // FIX: Filtrar por id_empresa a través del periodoCurso
+        $user = $request->sessionUser;
+        $periodoHorario = DB::table("periodo_horario as ph")
+            ->join("periodo_curso as pc", "ph.id_periodocurso", "pc.id_periodocurso")
+            ->where("ph.id_periodohorario", $id_periodohorario)
+            ->where("pc.id_empresa", $user->id_empresa)
+            ->select("ph.id_periodohorario")
+            ->first();
+
         if(!$periodoHorario) {
             return response()->json("¡Atención! Horario no encontrado.", 400);
         }
 
-        $periodoHorario->delete();
+        $horario = PeriodoHorario::find($id_periodohorario);
+        $horario->delete();
 
         return response()->json([]);
     }
@@ -1055,6 +1083,16 @@ class AcademicoController extends Controller
     public function resumenCarrera(Request $request)
     {
         $user = $request->sessionUser;
+
+        // FIX: Validar que id_periodo e id_carrera estén presentes
+        if (!isset($request->id_periodo) || !isset($request->id_carrera)) {
+            return response()->json([
+                "total_cursos" => 0,
+                "total_creditos" => 0,
+                "total_horas_semanal" => 0,
+                "total_ciclos" => 0,
+            ]);
+        }
 
         $first = DB::table("periodo_ciclo as a")
             ->join("periodo_curso as b", "a.id_periodociclo", "b.id_periodociclo")
