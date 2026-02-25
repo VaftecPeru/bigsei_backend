@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\DocenteController as AdminDocenteController;
 use App\Http\Controllers\Admin\UsuarioController as AdminUsuarioController;
 use App\Http\Controllers\Admin\AcademicoController as AdminAcademicoController;
 use App\Http\Controllers\Admin\MensajeriaController as AdminMensajeriaController;
+use App\Http\Controllers\Admin\MembresiaAdminController as AdminMembresiaController;
 use App\Http\Controllers\Admin\RolController as AdminRolController;
 use App\Http\Controllers\Admin\ModuloController as AdminModuloController;
 use App\Http\Controllers\Admin\PlanEstudioController as AdminPlanEstudioController;
@@ -198,6 +199,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::delete('roles/{id_usuariorol}', [AdminRolController::class, 'destroy']);
     Route::put('roles/{id_usuariorol}/elegir-principal', [AdminRolController::class, 'elegirPrincipal']);
     Route::get('modulos', [AdminModuloController::class, 'index']);
+    Route::get('membresias-sede', [AdminMembresiaController::class, 'listarPorSede']);
     Route::get('academico-periodo-horarios', [AdminAcademicoController::class, 'indexPeriodoHorario']);
     Route::get('academico-periodo-horarios/{id_periodohorario}', [AdminAcademicoController::class, 'showPeriodoHorario']);
     Route::post('academico-periodo-horarios', [AdminAcademicoController::class, 'storePeriodoHorario']);

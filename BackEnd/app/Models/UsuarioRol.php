@@ -25,8 +25,14 @@ class UsuarioRol extends Model
     // }
 
     // // // Relación con la tabla Rol
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario');
+    }
+
+    // Relación con Rol (🔥 CORREGIDO)
     public function rol()
     {
-        return $this->belongsTo(Rol::class, 'idRol');
+        return $this->belongsTo(Rol::class, 'id_rol');
     }
 }
