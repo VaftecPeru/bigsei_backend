@@ -52,6 +52,8 @@ use App\Http\Controllers\Estudiante\ArchivoController as EstudianteArchivoContro
 use App\Http\Controllers\Estudiante\MiMatriculaController as EstudianteMiMatriculaController;
 use App\Http\Controllers\Estudiante\ReporteController as EstudianteReporteController;
 use App\Http\Controllers\Estudiante\CertificadoController as EstudianteCertificadoController;
+use App\Http\Controllers\Estudiante\ResenaController as EstudianteResenaController;
+use App\Http\Controllers\Padre\PadreController;
 use App\Http\Controllers\Setup\ArchivoController as SetupArchivoController;
 use App\Http\Controllers\Setup\TipoDocumentoController as SetupTipoDocumentoController;
 use App\Http\Controllers\Setup\TipoModalidadestudioController as SetupTipoModalidadestudioController;
@@ -349,10 +351,18 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     
     // Hito 11: Descarga de certificado por course_id
     Route::get('certificates/{course_id}/download', [EstudianteCertificadoController::class, 'downloadCertificateByCourse']);
+
+    // Reseñas de cursos
+    Route::get('mis-resenas', [EstudianteResenaController::class, 'index']);
+    Route::post('mis-resenas', [EstudianteResenaController::class, 'store']);
 });
 Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], function () {
-    // Rutas específicas para el rol Padre
-    // TODO: Implementar endpoints según necesidades del rol
+    Route::get('dashboard', [PadreController::class, 'dashboard']);
+    Route::get('mis-hijos', [PadreController::class, 'misHijos']);
+    Route::get('mis-hijos/{idHijo}/cursos', [PadreController::class, 'cursosHijo']);
+    Route::get('mis-hijos/{idHijo}/notas', [PadreController::class, 'notasHijo']);
+    Route::get('mis-hijos/{idHijo}/asistencia', [PadreController::class, 'asistenciaHijo']);
+    Route::get('mis-hijos/{idHijo}/pagos', [PadreController::class, 'pagosHijo']);
 });
 Route::group(['prefix' => 'tutor', 'middleware' => ['CheckUserRoleMW:tutor']], function () {
     // Rutas específicas para el rol Tutor
@@ -666,6 +676,9 @@ Route::get('estudiante/descargar-plan-estudios', [EstudianteController::class, '
 
 //RUTA PARA OBTENER REPORTE DE PAGOS
 Route::get('estudiante/reporte-pagos', [EstudianteController::class, 'reportePagos']);
+
+// RUTA PARA OBTENER TRAMITES DEL ESTUDIANTE
+Route::get('estudiante/mis-tramites', [EstudianteController::class, 'misTramites']);
 
 //RUTA PARA OBTENER REPORTE DE INGRESOS Y EGRESOS
 Route::get('contador/reporte/ingresos_egresos', [ContadorController::class, 'reporteIngresosEgresos']);
