@@ -33,7 +33,7 @@ class EstudianteController extends Controller
 
         // Validación de Laravel
         $request->validate([
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
             'documento' => 'required|file|max:10240', // Límite en el servidor, máximo 10 MB
         ]);
 
@@ -274,7 +274,7 @@ class EstudianteController extends Controller
         $idCursoHorario = $request->input('idCursoHorario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
             'idCursoHorario' => 'required|integer|exists:curso_horario,idCursoHorario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
@@ -310,7 +310,7 @@ class EstudianteController extends Controller
         $idUsuario = $request->input('idUsuario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -364,7 +364,7 @@ class EstudianteController extends Controller
         $idUsuario = $request->input('idUsuario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -429,7 +429,7 @@ class EstudianteController extends Controller
         $nroMes = $request->input('nroMes');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
             'nroMes' => 'required|integer|between:1,12',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
@@ -487,7 +487,7 @@ class EstudianteController extends Controller
         $idUsuario = $request->input('idUsuario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -531,7 +531,7 @@ class EstudianteController extends Controller
         $idUsuario = $request->input('idUsuario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -598,7 +598,7 @@ class EstudianteController extends Controller
     public function obtenerPlanEstudios(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -639,7 +639,7 @@ class EstudianteController extends Controller
     public function descargarPlanEstudios(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -687,7 +687,7 @@ class EstudianteController extends Controller
     public function descargarTramiteAcademico(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
             'tipoTramite' => 'required|string',
             'lugarTramite' => 'required|string',
         ], [
@@ -782,5 +782,61 @@ class EstudianteController extends Controller
              ->get();
 
         return response()->json($pagos);
+    }
+
+    /**
+     * Devuelve los trámites del estudiante autenticado.
+     */
+    public function misTramites(Request $request)
+    {
+        $idUsuario = $request->input('idUsuario');
+
+        $validator = Validator::make($request->all(), [
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        // Intentar buscar tramites directamente por id_usuario en la tabla tramites
+        // Si la tabla usa columna 'idUsuario' o 'id_usuario', probamos ambas
+        try {
+            $columns = DB::select("SHOW COLUMNS FROM tramites");
+            $columnNames = array_map(fn($c) => $c->Field, $columns);
+
+            // Determinar la columna que relaciona al usuario
+            if (in_array('id_usuario', $columnNames)) {
+                $tramites = DB::table('tramites')
+                    ->where('id_usuario', $idUsuario)
+                    ->orderBy('fecha_solicitud', 'desc')
+                    ->get();
+            } elseif (in_array('idUsuario', $columnNames)) {
+                $tramites = DB::table('tramites')
+                    ->where('idUsuario', $idUsuario)
+                    ->orderBy('fecha_solicitud', 'desc')
+                    ->get();
+            } else {
+                // La tabla tramites no tiene columna de usuario directa
+                // Retornar lista vacía
+                return response()->json(['data' => []]);
+            }
+
+            return response()->json([
+                'data' => $tramites->map(function ($t) {
+                    return [
+                        'idTramite'     => $t->id ?? null,
+                        'ticket'        => $t->ticket ?? ($t->matricula ?? '-') . '-' . ($t->id ?? ''),
+                        'tipo'          => $t->tipo_tramite ?? $t->tipo ?? '—',
+                        'fechaRegistro' => $t->fecha_solicitud ?? $t->created_at ?? null,
+                        'estado'        => $t->estado ?? '—',
+                        'mensaje'       => $t->mensaje ?? null,
+                        'observacion'   => $t->observacion ?? null,
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['data' => [], 'error' => 'Tabla tramites no disponible: ' . $e->getMessage()]);
+        }
     }
 }

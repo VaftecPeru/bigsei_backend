@@ -25,11 +25,15 @@ class EvaluacionNotaController extends Controller
             ->join("matricula_curso as d", "a.id_matricula", "d.id_matricula")
             ->join("periodo_curso as z", "d.id_periodocurso", "z.id_periodocurso")
             ->join("evaluacion_criterio as f", "d.id_periodocurso", "f.id_periodocurso")
-            ->leftJoin("evaluacion_nota as e", "d.id_periodocurso",
-                DB::raw("e.id_periodocurso and c.id_estudiante = e.id_estudiante and f.id_evaluacioncriterio = e.id_evaluacioncriterio"))
+            ->leftJoin("evaluacion_nota as e", function($join) {
+                $join->on("d.id_periodocurso", "=", "e.id_periodocurso")
+                     ->on("c.id_estudiante", "=", "e.id_estudiante")
+                     ->on("f.id_evaluacioncriterio", "=", "e.id_evaluacioncriterio");
+            })
             ->select(
                 "e.id_evaluacionnota",
                 "e.nota",
+                "e.comentario",
                 "f.id_evaluacioncriterio",
                 "c.id_estudiante",
                 "d.id_periodocurso",
@@ -54,18 +58,19 @@ class EvaluacionNotaController extends Controller
             "id_evaluacioncriterio" => "required",
             "id_estudiante" => "required",
             "id_periodocurso" => "required",
-            "nota" => "required|max:20",
+            "nota" => "required|numeric|min:0|max:20",
+            "comentario" => "nullable|string|max:500",
         ], [
             "id_evaluacioncriterio.required" => "El criterio es requerido",
             "id_estudiante.required" => "El estudiante es requerido",
             "id_periodocurso.required" => "El curso es requerido",
             "nota.required" => "La nota es requerida",
-            'nota.max' => 'La nota tiene un máximo 20 caracteres',
+            "nota.numeric" => "La nota debe ser un número",
+            "nota.max" => "La nota máxima es 20",
         ]);
 
         if ($validator->fails()) {
-            return response()->json(
-                implode(",",$validator->messages()->all()), 400);
+            return response()->json(implode(",",$validator->messages()->all()), 400);
         }
 
         $user = $request->sessionUser;
@@ -73,45 +78,42 @@ class EvaluacionNotaController extends Controller
         $matricula = DB::table("periodo_curso as a")
             ->join("matricula_curso as b", "a.id_periodocurso", "b.id_periodocurso")
             ->join("matricula as c", "b.id_matricula", "c.id_matricula")
-            ->leftJoin("evaluacion_nota as d", "b.id_periodocurso",
-                DB::raw("d.id_periodocurso and c.id_estudiante = d.id_estudiante and d.id_evaluacioncriterio = ".$request->id_evaluacioncriterio))
-            ->select(
-                "c.id_empresa",
-                "d.id_evaluacionnota",
-                "a.id_tiponota"
-            )
+            ->leftJoin("evaluacion_nota as d", function($join) use ($request) {
+                $join->on("b.id_periodocurso", "=", "d.id_periodocurso")
+                     ->on("c.id_estudiante", "=", "d.id_estudiante")
+                     ->where("d.id_evaluacioncriterio", "=", $request->id_evaluacioncriterio);
+            })
+            ->select("c.id_empresa", "d.id_evaluacionnota", "a.id_tiponota")
             ->where("a.id_periodocurso", $request->id_periodocurso)
             ->where("c.estado", "1")
             ->where("c.id_estudiante", $request->id_estudiante)
+            ->where("c.id_empresa", $user->id_empresa) 
             ->first();
 
         if (!$matricula) {
-            return response()->json(
-                "¡Atención! La matrícula no existe.", 400);
+            return response()->json("¡Atención! La matrícula no existe o no pertenece a su empresa.", 400);
         }
+
+        $data = [
+            "id_evaluacioncriterio" => $request->id_evaluacioncriterio,
+            "id_periodocurso"       => $request->id_periodocurso,
+            "id_estudiante"         => $request->id_estudiante,
+            "nota"                  => $request->nota,
+            "comentario"            => $request->comentario, 
+            "id_tiponota"           => $matricula->id_tiponota,
+            "id_empresa"            => $user->id_empresa,    
+        ];
 
         if ($matricula->id_evaluacionnota) {
             $evaluacionNota = EvaluacionNota::find($matricula->id_evaluacionnota);
-            $evaluacionNotaEdit = [];
-            $evaluacionNotaEdit["id_evaluacioncriterio"] = $request->id_evaluacioncriterio;
-            $evaluacionNotaEdit["id_periodocurso"] = $request->id_periodocurso;
-            $evaluacionNotaEdit["id_estudiante"] = $request->id_estudiante;
-            $evaluacionNotaEdit["nota"] = $request->nota;
-            $evaluacionNotaEdit["id_tiponota"] = $matricula->id_tiponota;
-            $evaluacionNota->update($evaluacionNotaEdit);
+            $evaluacionNota->update($data);
         } else {
-            $evaluacionNota = [];
-            $evaluacionNota["id_evaluacioncriterio"] = $request->id_evaluacioncriterio;
-            $evaluacionNota["id_periodocurso"] = $request->id_periodocurso;
-            $evaluacionNota["id_estudiante"] = $request->id_estudiante;
-            $evaluacionNota["id_docente"] = $user->id_usuario;
-            $evaluacionNota["nota"] = $request->nota;
-            $evaluacionNota["id_tiponota"] = $matricula->id_tiponota;
-            $evaluacionNota["id_usuarioreg"] = $user->id_usuario;
-            $evaluacionNota["fechareg"] = now();
-            $evaluacionNota = EvaluacionNota::create($evaluacionNota);
+            $data["id_docente"]    = $user->id_usuario;
+            $data["id_usuarioreg"] = $user->id_usuario;
+            $data["fechareg"]      = now();
+            $evaluacionNota = EvaluacionNota::create($data);
         }
 
-        return response()->json([]);
+        return response()->json(["message" => "Nota guardada con éxito"]);
     }
 }
