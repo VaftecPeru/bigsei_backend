@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Superadministrador;
 
 use App\Http\Controllers\Controller;
-use App\Models\UsuarioSede;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -19,7 +19,7 @@ class SedeController extends Controller
         $idUsuario = $request->input('idUsuario');
 
         $validator = Validator::make($request->all(), [
-            'idUsuario' => 'required|integer|exists:usuarios,idUsuario',
+            'idUsuario' => 'required|integer|exists:usuario,id_usuario',
         ], [
             'idUsuario.required' => 'El ID del estudiante es requerido',
             'idUsuario.exists' => 'El estudiante no existe',
@@ -30,27 +30,28 @@ class SedeController extends Controller
         }
 
         // Obtener datos del estudiante
-        $estudiante = Usuario::with(['rol', 'sedes'])
+        $estudiante = Usuario::with(['roles'])
             ->findOrFail($idUsuario);
 
+        // Obtener la sede/empresa del estudiante
+        $sede = Sedes::find($estudiante->id_empresa);
+
         // Obtener datos del padre/madre (asumiendo relación)
-        $padre = Usuario::whereHas('rol', function ($q) {
-            $q->where('nombreRol', 'Padre'); // Ajusta según tu estructura
+        $padre = Usuario::whereHas('roles', function ($q) {
+            $q->whereHas('rol', function ($q2) {
+                $q2->where('codigo', 'padre');
+            });
         })
-            ->where('idEstudiante', $idUsuario) // Ajusta según tu relación
             ->first();
 
-        // Obtener datos del profesor (asumiendo relación a través de sede)
-        $profesor = Usuario::whereHas('rol', function ($q) {
-            $q->where('nombreRol', 'Profesor');
+        // Obtener datos del profesor (asumiendo relación a través de sede/empresa)
+        $profesor = Usuario::whereHas('roles', function ($q) {
+            $q->whereHas('rol', function ($q2) {
+                $q2->where('codigo', 'docente');
+            });
         })
-            ->whereHas('sedes', function ($q) use ($estudiante) {
-                $q->whereIn('idSede', $estudiante->sedes->pluck('idSede'));
-            })
+            ->where('id_empresa', $estudiante->id_empresa)
             ->first();
-
-        // Obtener sede principal (asumiendo primera sede)
-        $sede = $estudiante->sedes->first();
 
         $data = [
             'estudiante' => $estudiante,
@@ -62,13 +63,13 @@ class SedeController extends Controller
 
         $pdf = Pdf::loadView('exports.reporte_usuario_sede', $data);
 
-        return $pdf->download('reporte_estudiante_' . $estudiante->id . '.pdf');
+        return $pdf->download('reporte_estudiante_' . $estudiante->id_usuario . '.pdf');
     }
 
     public function obtenerReportePorSede(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'idSede' => 'required|integer|exists:sedes,idSede',
+            'idSede' => 'required|integer|exists:empresa,id_empresa',
             'fecha_inicio' => 'nullable|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio'
         ], [
@@ -85,15 +86,16 @@ class SedeController extends Controller
         $fechaInicio = $request->input('fecha_inicio') ? Carbon::parse($request->input('fecha_inicio')) : now()->startOfMonth();
         $fechaFin = $request->input('fecha_fin') ? Carbon::parse($request->input('fecha_fin')) : now()->endOfMonth();
 
-        // Obtener datos de la sede
+        // Obtener datos de la sede/empresa
         $sede = Sedes::findOrFail($idSede);
 
-        // Obtener estudiantes de la sede
-        $estudiantes = Usuario::whereHas('sedes', function ($query) use ($idSede) {
-            $query->where('idSede', $idSede);
-        })->whereHas('rol', function ($query) {
-            $query->where('nombreRol', 'Estudiante'); // Ajusta según tu estructura
-        })->get();
+        // Obtener estudiantes de la sede/empresa
+        $estudiantes = Usuario::where('id_empresa', $idSede)
+            ->whereHas('roles', function ($query) {
+                $query->whereHas('rol', function ($q) {
+                    $q->where('codigo', 'student');
+                });
+            })->get();
 
         // Calcular asistencia por estudiante
         $reporte = [];
