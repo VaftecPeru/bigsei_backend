@@ -1,0 +1,43 @@
+--- ROL: Contador (7) ---
+ - [98] Inicio: /contador
+ - [99] Factura: /contador/factura
+ - [100] Gastos: /contador/gastos
+ - [101] Bancos: /contador/bancos
+ - [102] Configuracion: /contador/configuracion
+--- ROL: Bibliotecario (8) ---
+ - [75] Inicio: /bibliotecario
+ - [76] Material: /#
+ - [77] Registrar Material: /bibliotecario/registrar-material (Sub de 76)
+ - [78] Operaciones: /#
+ - [79] Estudiantes: /bibliotecario/reserva-estudiantes (Sub de 78)
+ - [80] Docentes: /bibliotecario/reserva-docentes (Sub de 78)
+ - [81] Prestamos: /bibliotecario/historial-prestamo (Sub de 78)
+ - [82] Devoluciones: /bibliotecario/historial-devoluciones (Sub de 78)
+ - [83] Usuarios: /bibliotecario/cursos
+ - [84] Reporte: /#
+ - [85] Transacciones: /bibliotecario/transacciones (Sub de 84)
+ - [86] Material: /bibliotecario/material (Sub de 84)
+ - [87] Visitas: /bibliotecario/visitas (Sub de 84)
+--- ROL: Tópico Médico (9) ---
+ - [88] Panel: /TopicoMedico
+ - [89] Inicio: /topicomedico
+ - [90] Horarios: /topicomedico/horarios
+ - [91] Pacientes: /topicomedico/pacientes
+ - [92] Doctores: /topicomedico/añadir-doctor
+ - [93] Especialidades: /topicomedico/especialidades
+ - [94] Reporte: /topicomedico/reporte
+ - [95] Inventario: /topicomedico/inventario
+ - [96] Estadistica: /topico/TopicoDashboard
+ - [97] Configuración: /topicomedico/inventario
+--- ROL: Vendedor (10) ---
+ - [70] Inicio: /vendedor
+ - [71] Factura: /vendedor/factura
+ - [72] Gastos: /vendedor/gastos
+ - [73] Bancos: /vendedor/bancos
+ - [74] Configuracion: /vendedor/configuracion
+--- ROL: Tutor (11) ---
+ - [65] Inicio: /tutor
+ - [66] Estudiantes: /tutor/estudiantes
+ - [67] Docentes: /tutor/docentes
+ - [68] Cursos: /tutor/cursos
+ - [69] Pendientes académicos: /tutor/pendientes

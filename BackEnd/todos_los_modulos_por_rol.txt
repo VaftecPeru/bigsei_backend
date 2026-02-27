@@ -1,0 +1,117 @@
+--- ROL: SuperAdministrador (1) ---
+ - [1] Inicio: /superadministrador [Icon: Home]
+ - [2] Estudiantes: /superadministrador/estudiantes [Icon: GraduationCap]
+ - [3] Docentes: /superadministrador/docentes [Icon: SquareUser]
+ - [4] Sedes: /superadministrador/sedes [Icon: Flag]
+ - [5] Clientes: /# [Icon: Customer_icon]
+ - [6] Listado de clientes: /superadministrador/clientes [Icon: ] (Sub de 5)
+ - [7] Tipo de clientes: /superadministrador/clientes [Icon: ] (Sub de 5)
+ - [8] Usuarios: /superadministrador/usuarios [Icon: UsersIcon]
+ - [9] Academico: /# [Icon: School]
+ - [10] Periodo: /superadministrador/academico/periodo [Icon: ] (Sub de 9)
+ - [11] Ciclo: /superadministrador/academico/ciclo [Icon: ] (Sub de 9)
+ - [12] Curso: /superadministrador/academico/curso [Icon: ] (Sub de 9)
+ - [13] Asistencia: /# [Icon: Clock10Icon]
+ - [14] Estudiante: /superadministrador/asistencia/estudiante [Icon: ] (Sub de 13)
+ - [15] Docente: /superadministrador/asistencia/docente [Icon: ] (Sub de 13)
+ - [16] Tramite Académicos: /superadministrador/tramites [Icon: Archive] (Sub de 15)
+ - [17] Configuraciòn: /superadministrador/ajustes [Icon: Settings]
+--- ROL: Administrador (2) ---
+ - [18] Inicio: /admin [Icon: Home]
+ - [19] Estudiante: /admin/estudiantes [Icon: GraduationCap]
+ - [20] Docente: /admin/docentes [Icon: Presentation]
+ - [21] Usuario: /admin/usuarios [Icon: Users]
+ - [22] Académico: /# [Icon: Building]
+ - [23] Período Académico: /admin/academico/periodo [Icon: ] (Sub de 22)
+ - [26] Asistencia: /# [Icon: AlarmClockCheck]
+ - [27] Docente: /asistencia/docente [Icon: ] (Sub de 26)
+ - [28] Estudiante: /asistencia/estudiante [Icon: ] (Sub de 26)
+ - [29] Tramite Academico: /admin/tramite [Icon: Archive]
+ - [30] Configuración: /configuracion [Icon: Settings]
+ - [105] Carrera: /configuracion/carrera [Icon: ] (Sub de 30)
+ - [106] Aula: /configuracion/aula [Icon: ] (Sub de 30)
+ - [107] Ciclo: /configuracion/ciclo [Icon: ] (Sub de 30)
+ - [108] Curso: /configuracion/curso [Icon: ] (Sub de 30)
+ - [104] Plan de estudios: /admin/plan-de-estudios [Icon: Building]
+--- ROL: Director (3) ---
+ - [31] Inicio: /director [Icon: Home]
+ - [32] Estudiantes: /director/estudiantes [Icon: GraduationCap]
+ - [33] Docentes: /director/docentes [Icon: Presentation]
+ - [34] Cursos: /director/cursos [Icon: Book]
+ - [35] Pendientes: /director/pendientes [Icon: NotepadText]
+ - [36] Asistencia: /director/asistencia [Icon: AlarmClockCheck]
+ - [37] Plan de Estudios: /director/plan-de-estudios [Icon: FileText]
+ - [38] Trámite Académico: /director/tramite [Icon: Archive]
+--- ROL: Docente (4) ---
+ - [39] Inicio: /docente [Icon: Home]
+ - [40] Asignaturas: /docente/asignaturas [Icon: AsignaturaIcon]
+ - [41] Asistencia: /docente/asistencia [Icon: AsistenciaIcon]
+ - [42] Reporte: /# [Icon: ReporteIcon]
+ - [43] Notas: /docente/reporte/notas [Icon: ] (Sub de 42)
+ - [44] Horario: /docente/reporte/horario [Icon: ] (Sub de 42)
+--- ROL: Estudiante (5) ---
+ - [45] Inicio: /student [Icon: Home]
+ - [46] Perfil: /student/perfil [Icon: GraduationCap]
+ - [47] Matrícula: /student/matricula [Icon: NotebookPen]
+ - [48] Cursos: /student/cursos [Icon: BookMarked]
+ - [49] Reporte: /# [Icon: BookText]
+ - [50] Notas: /student/reporte/notas [Icon: ] (Sub de 49)
+ - [51] Horario: /student/reporte/horario [Icon: ] (Sub de 49)
+ - [52] Matrícula: /student/reporte/matricula [Icon: ] (Sub de 49)
+ - [53] Pagos: /student/reporte/pagos [Icon: ] (Sub de 49)
+ - [54] Deudas: /student/reporte/deudas [Icon: ] (Sub de 49)
+ - [55] Asistencia: /student/asistencia [Icon: ] (Sub de 49)
+ - [103] Ficha Académica: /reporte/ficha-academica [Icon: FileText] (Sub de 49)
+ - [56] Plan de estudios: /student/plan-de-estudios [Icon: Album]
+ - [57] Tramite Academico: /student/tramite [Icon: Archive]
+--- ROL: Padre de Familia (6) ---
+ - [58] Inicio: /padre [Icon: Home]
+ - [59] Seguimiento Estudiante: /padre/estudiantes [Icon: GraduationCap]
+ - [60] Cordinacion Docentes: /padre/docentes [Icon: Presentation]
+ - [61] Cursos: /padre/cursos [Icon: Book]
+ - [62] Pendientes académicos: /padre/pendientes [Icon: NotepadText]
+ - [63] Pagos: /padre/pagos [Icon: ReceiptText]
+ - [64] Asistencia: /padre/asistencia [Icon: AlarmClockCheck]
+--- ROL: Contador (7) ---
+ - [98] Inicio: /contador [Icon: Home]
+ - [99] Factura: /contador/factura [Icon: ReceiptText]
+ - [100] Gastos: /contador/gastos [Icon: Receipt]
+ - [101] Bancos: /contador/bancos [Icon: Landmark]
+ - [102] Configuracion: /contador/configuracion [Icon: Settings]
+--- ROL: Bibliotecario (8) ---
+ - [75] Inicio: /bibliotecario [Icon: Home]
+ - [76] Material: /# [Icon: Album]
+ - [77] Registrar Material: /bibliotecario/registrar-material [Icon: ] (Sub de 76)
+ - [78] Operaciones: /# [Icon: Laptop]
+ - [79] Estudiantes: /bibliotecario/reserva-estudiantes [Icon: ] (Sub de 78)
+ - [80] Docentes: /bibliotecario/reserva-docentes [Icon: ] (Sub de 78)
+ - [81] Prestamos: /bibliotecario/historial-prestamo [Icon: ] (Sub de 78)
+ - [82] Devoluciones: /bibliotecario/historial-devoluciones [Icon: ] (Sub de 78)
+ - [83] Usuarios: /bibliotecario/cursos [Icon: Users]
+ - [84] Reporte: /# [Icon: FileText]
+ - [85] Transacciones: /bibliotecario/transacciones [Icon: ] (Sub de 84)
+ - [86] Material: /bibliotecario/material [Icon: ] (Sub de 84)
+ - [87] Visitas: /bibliotecario/visitas [Icon: ] (Sub de 84)
+--- ROL: Tópico Médico (9) ---
+ - [88] Panel: /TopicoMedico [Icon: Grid2X2]
+ - [89] Inicio: /topicomedico [Icon: Home]
+ - [90] Horarios: /topicomedico/horarios [Icon: CalendarDays]
+ - [91] Pacientes: /topicomedico/pacientes [Icon: ContactRound]
+ - [92] Doctores: /topicomedico/añadir-doctor [Icon: LucideBriefcaseMedical]
+ - [93] Especialidades: /topicomedico/especialidades [Icon: HeartPulse]
+ - [94] Reporte: /topicomedico/reporte [Icon: FileText]
+ - [95] Inventario: /topicomedico/inventario [Icon: FolderPlus]
+ - [96] Estadistica: /topico/TopicoDashboard [Icon: ChartSpline]
+ - [97] Configuración: /topicomedico/inventario [Icon: Settings]
+--- ROL: Vendedor (10) ---
+ - [70] Inicio: /vendedor [Icon: Home]
+ - [71] Factura: /vendedor/factura [Icon: ReceiptText]
+ - [72] Gastos: /vendedor/gastos [Icon: Receipt]
+ - [73] Bancos: /vendedor/bancos [Icon: Landmark]
+ - [74] Configuracion: /vendedor/configuracion [Icon: Settings]
+--- ROL: Tutor (11) ---
+ - [65] Inicio: /tutor [Icon: Home]
+ - [66] Estudiantes: /tutor/estudiantes [Icon: GraduationCap]
+ - [67] Docentes: /tutor/docentes [Icon: Presentation]
+ - [68] Cursos: /tutor/cursos [Icon: Book]
+ - [69] Pendientes académicos: /tutor/pendientes [Icon: NotepadText]

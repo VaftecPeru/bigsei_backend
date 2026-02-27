@@ -1,0 +1,68 @@
+[
+    {
+        "id_rol": 1,
+        "nombre": "SuperAdministrador",
+        "codigo": "superadministrador",
+        "es_administrador": "1"
+    },
+    {
+        "id_rol": 2,
+        "nombre": "Administrador",
+        "codigo": "admin",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 3,
+        "nombre": "Director",
+        "codigo": "director",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 4,
+        "nombre": "Docente",
+        "codigo": "docente",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 5,
+        "nombre": "Estudiante",
+        "codigo": "student",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 6,
+        "nombre": "Padre de Familia",
+        "codigo": "padre",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 7,
+        "nombre": "Contador",
+        "codigo": "contador",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 8,
+        "nombre": "Bibliotecario",
+        "codigo": "bibliotecario",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 9,
+        "nombre": "T\u00f3pico M\u00e9dico",
+        "codigo": "topicomedico",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 10,
+        "nombre": "Vendedor",
+        "codigo": "vendedor",
+        "es_administrador": "0"
+    },
+    {
+        "id_rol": 11,
+        "nombre": "Tutor",
+        "codigo": "tutor",
+        "es_administrador": "0"
+    }
+]

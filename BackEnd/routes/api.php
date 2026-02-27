@@ -173,7 +173,6 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
-<<<<<<< HEAD
     // Rutas de gestión de usuarios (NUEVO - UsuarioController implementado)
     Route::get('usuarios', [SuperAdminUsuarioController::class, 'index']);
     Route::get('usuarios/{id}', [SuperAdminUsuarioController::class, 'show']);
@@ -279,7 +278,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::delete('academico-periodo-curso-precios/{id_periodocursoprecio}', [AdminAcademicoController::class, 'destroyPeriodoCursoPrecio']);
     // Route::get('academico-plan-estudio-ciclos', [AdminAcademicoController::class, 'indexPlanEstudioCiclo']);
     // Route::get('academico-plan-estudio-cursos', [AdminAcademicoController::class, 'indexPlanEstudioCurso']);
-<<<<<<< HEAD
     Route::get('tramites', [SuperAdminTramiteController::class, 'index']);
     Route::post('tramites', [SuperAdminTramiteController::class, 'store']);
     Route::get('tramites/{id}', [SuperAdminTramiteController::class, 'show']);
@@ -289,9 +287,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
     Route::get('academico-carreras', [AdminAcademicoController::class, 'indexCarrera']);
-=======
-    Route::get('    ', [AdminAcademicoController::class, 'indexCarrera']);
->>>>>>> master
     Route::get('mensajerias/grupos', [AdminMensajeriaController::class, 'indexGrupo']);
     Route::post('mensajerias/grupos', [AdminMensajeriaController::class, 'storeGrupo']);
     Route::get('mensajerias/personas', [AdminMensajeriaController::class, 'indexPersona']);
@@ -654,7 +649,6 @@ Route::group(['prefix' => 'setup', 'middleware' => ['auth.jwt']], function () {
     Route::get('archivos/{id_archivo}/visualizar-imagenes', [SetupArchivoController::class, 'imagen']);
 });
 
-<<<<<<< HEAD
 // Ruta pública para visualizar imágenes de cursos (sin autenticación)
 Route::get('setup/archivos/{id_archivo}/imagen-publica', [SetupArchivoController::class, 'imagenPublica']);
 
@@ -662,9 +656,6 @@ Route::get('setup/archivos/{id_archivo}/imagen-publica', [SetupArchivoController
 Route::get('setup/tipo-documentos', [SetupTipoDocumentoController::class, 'index']);
 
 Route::group(['prefix' => 'web'], function () {
-=======
-    Route::group(['prefix' => 'web'], function () {
->>>>>>> master
     Route::get('matriculas/curso-libres', [WebMatriculaController::class, 'cursoLibres']);
     Route::get('matriculas/curso-libres/{id_periodocurso}', [WebMatriculaController::class, 'showCursoLibres']);
     Route::post('matriculas/curso-libres', [WebMatriculaController::class, 'storeCursoLibres']);

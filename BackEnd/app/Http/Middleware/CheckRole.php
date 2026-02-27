@@ -33,6 +33,7 @@ class CheckRole
             }
 
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error("CheckRole Error: " . $e->getMessage());
             return response()->json(['error' => 'Token inválido o no proporcionado.'], 401);
         }
 

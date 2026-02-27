@@ -39,6 +39,7 @@ class CheckUser
             // $request->attributes->set('sessionUser', $usuarioSesion);
             $request->merge(["sessionUser" => $usuarioSesion]);
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error("CheckUser Error: " . $e->getMessage());
             return response()->json(['error' => 'Token inválido o no proporcionado.'], 401);
         }
 

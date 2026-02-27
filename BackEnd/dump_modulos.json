@@ -1,0 +1,1082 @@
+[
+    {
+        "id_modulo": 1,
+        "nombre": "Inicio",
+        "url": "\/superadministrador",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 2,
+        "nombre": "Estudiantes",
+        "url": "\/superadministrador\/estudiantes",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 3,
+        "nombre": "Docentes",
+        "url": "\/superadministrador\/docentes",
+        "url_activa": "1",
+        "icon": "SquareUser",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 4,
+        "nombre": "Sedes",
+        "url": "\/superadministrador\/sedes",
+        "url_activa": "1",
+        "icon": "Flag",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 5,
+        "nombre": "Clientes",
+        "url": "\/#",
+        "url_activa": "1",
+        "icon": "Customer_icon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 6,
+        "nombre": "Listado de clientes",
+        "url": "\/superadministrador\/clientes",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 5,
+        "orden": 6
+    },
+    {
+        "id_modulo": 7,
+        "nombre": "Tipo de clientes",
+        "url": "\/superadministrador\/clientes",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 5,
+        "orden": 7
+    },
+    {
+        "id_modulo": 8,
+        "nombre": "Usuarios",
+        "url": "\/superadministrador\/usuarios",
+        "url_activa": "1",
+        "icon": "UsersIcon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 8
+    },
+    {
+        "id_modulo": 9,
+        "nombre": "Academico",
+        "url": "\/#",
+        "url_activa": "1",
+        "icon": "School",
+        "estado": "0",
+        "id_modulosup": null,
+        "orden": 9
+    },
+    {
+        "id_modulo": 10,
+        "nombre": "Periodo",
+        "url": "\/superadministrador\/academico\/periodo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "0",
+        "id_modulosup": 9,
+        "orden": 10
+    },
+    {
+        "id_modulo": 11,
+        "nombre": "Ciclo",
+        "url": "\/superadministrador\/academico\/ciclo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "0",
+        "id_modulosup": 9,
+        "orden": 11
+    },
+    {
+        "id_modulo": 12,
+        "nombre": "Curso",
+        "url": "\/superadministrador\/academico\/curso",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "0",
+        "id_modulosup": 9,
+        "orden": 12
+    },
+    {
+        "id_modulo": 13,
+        "nombre": "Asistencia",
+        "url": "\/#",
+        "url_activa": "1",
+        "icon": "Clock10Icon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 13
+    },
+    {
+        "id_modulo": 14,
+        "nombre": "Estudiante",
+        "url": "\/superadministrador\/asistencia\/estudiante",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 13,
+        "orden": 14
+    },
+    {
+        "id_modulo": 15,
+        "nombre": "Docente",
+        "url": "\/superadministrador\/asistencia\/docente",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 13,
+        "orden": 15
+    },
+    {
+        "id_modulo": 16,
+        "nombre": "Tramite Acad\u00e9micos",
+        "url": "\/superadministrador\/tramites",
+        "url_activa": "1",
+        "icon": "Archive",
+        "estado": "1",
+        "id_modulosup": 15,
+        "orden": 16
+    },
+    {
+        "id_modulo": 17,
+        "nombre": "Configuraci\u00f2n",
+        "url": "\/superadministrador\/ajustes",
+        "url_activa": "1",
+        "icon": "Settings",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 17
+    },
+    {
+        "id_modulo": 18,
+        "nombre": "Inicio",
+        "url": "\/admin",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 19,
+        "nombre": "Estudiante",
+        "url": "\/admin\/estudiantes",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 20,
+        "nombre": "Docente",
+        "url": "\/admin\/docentes",
+        "url_activa": "1",
+        "icon": "Presentation",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 21,
+        "nombre": "Usuario",
+        "url": "\/admin\/usuarios",
+        "url_activa": "1",
+        "icon": "Users",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 22,
+        "nombre": "Acad\u00e9mico",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "Building",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 23,
+        "nombre": "Per\u00edodo Acad\u00e9mico",
+        "url": "\/admin\/academico\/periodo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 22,
+        "orden": 6
+    },
+    {
+        "id_modulo": 24,
+        "nombre": "Ciclo",
+        "url": "\/admin\/academico\/ciclo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "0",
+        "id_modulosup": 22,
+        "orden": 7
+    },
+    {
+        "id_modulo": 25,
+        "nombre": "Curso",
+        "url": "\/admin\/academico\/curso",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "0",
+        "id_modulosup": 22,
+        "orden": 8
+    },
+    {
+        "id_modulo": 26,
+        "nombre": "Asistencia",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "AlarmClockCheck",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 9
+    },
+    {
+        "id_modulo": 27,
+        "nombre": "Docente",
+        "url": "\/asistencia\/docente",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 26,
+        "orden": 10
+    },
+    {
+        "id_modulo": 28,
+        "nombre": "Estudiante",
+        "url": "\/asistencia\/estudiante",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 26,
+        "orden": 11
+    },
+    {
+        "id_modulo": 29,
+        "nombre": "Tramite Academico",
+        "url": "\/admin\/tramite",
+        "url_activa": "1",
+        "icon": "Archive",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 12
+    },
+    {
+        "id_modulo": 30,
+        "nombre": "Configuraci\u00f3n",
+        "url": "\/configuracion",
+        "url_activa": "1",
+        "icon": "Settings",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 13
+    },
+    {
+        "id_modulo": 31,
+        "nombre": "Inicio",
+        "url": "\/director",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 32,
+        "nombre": "Estudiantes",
+        "url": "\/director\/estudiantes",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 33,
+        "nombre": "Docentes",
+        "url": "\/director\/docentes",
+        "url_activa": "1",
+        "icon": "Presentation",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 34,
+        "nombre": "Cursos",
+        "url": "\/director\/cursos",
+        "url_activa": "1",
+        "icon": "Book",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 35,
+        "nombre": "Pendientes",
+        "url": "\/director\/pendientes",
+        "url_activa": "1",
+        "icon": "NotepadText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 36,
+        "nombre": "Asistencia",
+        "url": "\/director\/asistencia",
+        "url_activa": "1",
+        "icon": "AlarmClockCheck",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 6
+    },
+    {
+        "id_modulo": 37,
+        "nombre": "Plan de Estudios",
+        "url": "\/director\/plan-de-estudios",
+        "url_activa": "1",
+        "icon": "FileText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 38,
+        "nombre": "Tr\u00e1mite Acad\u00e9mico",
+        "url": "\/director\/tramite",
+        "url_activa": "1",
+        "icon": "Archive",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 8
+    },
+    {
+        "id_modulo": 39,
+        "nombre": "Inicio",
+        "url": "\/docente",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 40,
+        "nombre": "Asignaturas",
+        "url": "\/docente\/asignaturas",
+        "url_activa": "1",
+        "icon": "AsignaturaIcon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 41,
+        "nombre": "Asistencia",
+        "url": "\/docente\/asistencia",
+        "url_activa": "1",
+        "icon": "AsistenciaIcon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 42,
+        "nombre": "Reporte",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "ReporteIcon",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 43,
+        "nombre": "Notas",
+        "url": "\/docente\/reporte\/notas",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 42,
+        "orden": 5
+    },
+    {
+        "id_modulo": 44,
+        "nombre": "Horario",
+        "url": "\/docente\/reporte\/horario",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 42,
+        "orden": 6
+    },
+    {
+        "id_modulo": 45,
+        "nombre": "Inicio",
+        "url": "\/student",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 46,
+        "nombre": "Perfil",
+        "url": "\/student\/perfil",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 47,
+        "nombre": "Matr\u00edcula",
+        "url": "\/student\/matricula",
+        "url_activa": "1",
+        "icon": "NotebookPen",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 48,
+        "nombre": "Cursos",
+        "url": "\/student\/cursos",
+        "url_activa": "1",
+        "icon": "BookMarked",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 49,
+        "nombre": "Reporte",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "BookText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 50,
+        "nombre": "Notas",
+        "url": "\/student\/reporte\/notas",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 6
+    },
+    {
+        "id_modulo": 51,
+        "nombre": "Horario",
+        "url": "\/student\/reporte\/horario",
+        "url_activa": "1",
+        "icon": "",
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 7
+    },
+    {
+        "id_modulo": 52,
+        "nombre": "Matr\u00edcula",
+        "url": "\/student\/reporte\/matricula",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 8
+    },
+    {
+        "id_modulo": 53,
+        "nombre": "Pagos",
+        "url": "\/student\/reporte\/pagos",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 9
+    },
+    {
+        "id_modulo": 54,
+        "nombre": "Deudas",
+        "url": "\/student\/reporte\/deudas",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 10
+    },
+    {
+        "id_modulo": 55,
+        "nombre": "Asistencia",
+        "url": "\/student\/asistencia",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 11
+    },
+    {
+        "id_modulo": 56,
+        "nombre": "Plan de estudios",
+        "url": "\/student\/plan-de-estudios",
+        "url_activa": "1",
+        "icon": "Album",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 12
+    },
+    {
+        "id_modulo": 57,
+        "nombre": "Tramite Academico",
+        "url": "\/student\/tramite",
+        "url_activa": "1",
+        "icon": "Archive",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 13
+    },
+    {
+        "id_modulo": 58,
+        "nombre": "Inicio",
+        "url": "\/padre",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 59,
+        "nombre": "Seguimiento Estudiante",
+        "url": "\/padre\/estudiantes",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 60,
+        "nombre": "Cordinacion Docentes",
+        "url": "\/padre\/docentes",
+        "url_activa": "1",
+        "icon": "Presentation",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 61,
+        "nombre": "Cursos",
+        "url": "\/padre\/cursos",
+        "url_activa": "1",
+        "icon": "Book",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 62,
+        "nombre": "Pendientes acad\u00e9micos",
+        "url": "\/padre\/pendientes",
+        "url_activa": "1",
+        "icon": "NotepadText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 63,
+        "nombre": "Pagos",
+        "url": "\/padre\/pagos",
+        "url_activa": "1",
+        "icon": "ReceiptText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 6
+    },
+    {
+        "id_modulo": 64,
+        "nombre": "Asistencia",
+        "url": "\/padre\/asistencia",
+        "url_activa": "1",
+        "icon": "AlarmClockCheck",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 7
+    },
+    {
+        "id_modulo": 65,
+        "nombre": "Inicio",
+        "url": "\/tutor",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 66,
+        "nombre": "Estudiantes",
+        "url": "\/tutor\/estudiantes",
+        "url_activa": "1",
+        "icon": "GraduationCap",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 67,
+        "nombre": "Docentes",
+        "url": "\/tutor\/docentes",
+        "url_activa": "1",
+        "icon": "Presentation",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 68,
+        "nombre": "Cursos",
+        "url": "\/tutor\/cursos",
+        "url_activa": "1",
+        "icon": "Book",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 69,
+        "nombre": "Pendientes acad\u00e9micos",
+        "url": "\/tutor\/pendientes",
+        "url_activa": "1",
+        "icon": "NotepadText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 70,
+        "nombre": "Inicio",
+        "url": "\/vendedor",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 71,
+        "nombre": "Factura",
+        "url": "\/vendedor\/factura",
+        "url_activa": "1",
+        "icon": "ReceiptText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 72,
+        "nombre": "Gastos",
+        "url": "\/vendedor\/gastos",
+        "url_activa": "1",
+        "icon": "Receipt",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 73,
+        "nombre": "Bancos",
+        "url": "\/vendedor\/bancos",
+        "url_activa": "1",
+        "icon": "Landmark",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 74,
+        "nombre": "Configuracion",
+        "url": "\/vendedor\/configuracion",
+        "url_activa": "1",
+        "icon": "Settings",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 75,
+        "nombre": "Inicio",
+        "url": "\/bibliotecario",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 76,
+        "nombre": "Material",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "Album",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 77,
+        "nombre": "Registrar Material",
+        "url": "\/bibliotecario\/registrar-material",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 76,
+        "orden": 3
+    },
+    {
+        "id_modulo": 78,
+        "nombre": "Operaciones",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "Laptop",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 79,
+        "nombre": "Estudiantes",
+        "url": "\/bibliotecario\/reserva-estudiantes",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 78,
+        "orden": 5
+    },
+    {
+        "id_modulo": 80,
+        "nombre": "Docentes",
+        "url": "\/bibliotecario\/reserva-docentes",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 78,
+        "orden": 6
+    },
+    {
+        "id_modulo": 81,
+        "nombre": "Prestamos",
+        "url": "\/bibliotecario\/historial-prestamo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 78,
+        "orden": 7
+    },
+    {
+        "id_modulo": 82,
+        "nombre": "Devoluciones",
+        "url": "\/bibliotecario\/historial-devoluciones",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 78,
+        "orden": 8
+    },
+    {
+        "id_modulo": 83,
+        "nombre": "Usuarios",
+        "url": "\/bibliotecario\/cursos",
+        "url_activa": "1",
+        "icon": "Users",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 9
+    },
+    {
+        "id_modulo": 84,
+        "nombre": "Reporte",
+        "url": "\/#",
+        "url_activa": "0",
+        "icon": "FileText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 10
+    },
+    {
+        "id_modulo": 85,
+        "nombre": "Transacciones",
+        "url": "\/bibliotecario\/transacciones",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 84,
+        "orden": 11
+    },
+    {
+        "id_modulo": 86,
+        "nombre": "Material",
+        "url": "\/bibliotecario\/material",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 84,
+        "orden": 12
+    },
+    {
+        "id_modulo": 87,
+        "nombre": "Visitas",
+        "url": "\/bibliotecario\/visitas",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 84,
+        "orden": 13
+    },
+    {
+        "id_modulo": 88,
+        "nombre": "Panel",
+        "url": "\/TopicoMedico",
+        "url_activa": "1",
+        "icon": "Grid2X2",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 89,
+        "nombre": "Inicio",
+        "url": "\/topicomedico",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 90,
+        "nombre": "Horarios",
+        "url": "\/topicomedico\/horarios",
+        "url_activa": "1",
+        "icon": "CalendarDays",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 91,
+        "nombre": "Pacientes",
+        "url": "\/topicomedico\/pacientes",
+        "url_activa": "1",
+        "icon": "ContactRound",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 92,
+        "nombre": "Doctores",
+        "url": "\/topicomedico\/a\u00f1adir-doctor",
+        "url_activa": "1",
+        "icon": "LucideBriefcaseMedical",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 93,
+        "nombre": "Especialidades",
+        "url": "\/topicomedico\/especialidades",
+        "url_activa": "1",
+        "icon": "HeartPulse",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 6
+    },
+    {
+        "id_modulo": 94,
+        "nombre": "Reporte",
+        "url": "\/topicomedico\/reporte",
+        "url_activa": "1",
+        "icon": "FileText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 7
+    },
+    {
+        "id_modulo": 95,
+        "nombre": "Inventario",
+        "url": "\/topicomedico\/inventario",
+        "url_activa": "1",
+        "icon": "FolderPlus",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 8
+    },
+    {
+        "id_modulo": 96,
+        "nombre": "Estadistica",
+        "url": "\/topico\/TopicoDashboard",
+        "url_activa": "1",
+        "icon": "ChartSpline",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 9
+    },
+    {
+        "id_modulo": 97,
+        "nombre": "Configuraci\u00f3n",
+        "url": "\/topicomedico\/inventario",
+        "url_activa": "1",
+        "icon": "Settings",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 10
+    },
+    {
+        "id_modulo": 98,
+        "nombre": "Inicio",
+        "url": "\/contador",
+        "url_activa": "1",
+        "icon": "Home",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 1
+    },
+    {
+        "id_modulo": 99,
+        "nombre": "Factura",
+        "url": "\/contador\/factura",
+        "url_activa": "1",
+        "icon": "ReceiptText",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 2
+    },
+    {
+        "id_modulo": 100,
+        "nombre": "Gastos",
+        "url": "\/contador\/gastos",
+        "url_activa": "1",
+        "icon": "Receipt",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 3
+    },
+    {
+        "id_modulo": 101,
+        "nombre": "Bancos",
+        "url": "\/contador\/bancos",
+        "url_activa": "1",
+        "icon": "Landmark",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 4
+    },
+    {
+        "id_modulo": 102,
+        "nombre": "Configuracion",
+        "url": "\/contador\/configuracion",
+        "url_activa": "1",
+        "icon": "Settings",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 5
+    },
+    {
+        "id_modulo": 103,
+        "nombre": "Ficha Acad\u00e9mica",
+        "url": "\/reporte\/ficha-academica",
+        "url_activa": "1",
+        "icon": "FileText",
+        "estado": "1",
+        "id_modulosup": 49,
+        "orden": 14
+    },
+    {
+        "id_modulo": 104,
+        "nombre": "Plan de estudios",
+        "url": "\/admin\/plan-de-estudios",
+        "url_activa": "1",
+        "icon": "Building",
+        "estado": "1",
+        "id_modulosup": null,
+        "orden": 100
+    },
+    {
+        "id_modulo": 105,
+        "nombre": "Carrera",
+        "url": "\/configuracion\/carrera",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 30,
+        "orden": 14
+    },
+    {
+        "id_modulo": 106,
+        "nombre": "Aula",
+        "url": "\/configuracion\/aula",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 30,
+        "orden": 15
+    },
+    {
+        "id_modulo": 107,
+        "nombre": "Ciclo",
+        "url": "\/configuracion\/ciclo",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 30,
+        "orden": 16
+    },
+    {
+        "id_modulo": 108,
+        "nombre": "Curso",
+        "url": "\/configuracion\/curso",
+        "url_activa": "1",
+        "icon": null,
+        "estado": "1",
+        "id_modulosup": 30,
+        "orden": 17
+    }
+]

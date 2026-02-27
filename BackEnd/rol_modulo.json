@@ -1,0 +1,426 @@
+[
+    {
+        "id_rol": 1,
+        "id_modulo": 1
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 2
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 3
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 4
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 5
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 6
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 7
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 8
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 9
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 10
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 11
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 12
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 13
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 14
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 15
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 16
+    },
+    {
+        "id_rol": 1,
+        "id_modulo": 17
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 18
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 19
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 20
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 21
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 22
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 23
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 26
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 27
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 28
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 29
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 30
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 31
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 32
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 33
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 34
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 35
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 36
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 37
+    },
+    {
+        "id_rol": 3,
+        "id_modulo": 38
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 39
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 40
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 41
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 42
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 43
+    },
+    {
+        "id_rol": 4,
+        "id_modulo": 44
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 45
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 46
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 47
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 48
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 49
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 50
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 51
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 52
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 53
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 54
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 55
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 56
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 57
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 58
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 59
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 60
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 61
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 62
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 63
+    },
+    {
+        "id_rol": 6,
+        "id_modulo": 64
+    },
+    {
+        "id_rol": 11,
+        "id_modulo": 65
+    },
+    {
+        "id_rol": 11,
+        "id_modulo": 66
+    },
+    {
+        "id_rol": 11,
+        "id_modulo": 67
+    },
+    {
+        "id_rol": 11,
+        "id_modulo": 68
+    },
+    {
+        "id_rol": 11,
+        "id_modulo": 69
+    },
+    {
+        "id_rol": 10,
+        "id_modulo": 70
+    },
+    {
+        "id_rol": 10,
+        "id_modulo": 71
+    },
+    {
+        "id_rol": 10,
+        "id_modulo": 72
+    },
+    {
+        "id_rol": 10,
+        "id_modulo": 73
+    },
+    {
+        "id_rol": 10,
+        "id_modulo": 74
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 75
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 76
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 77
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 78
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 79
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 80
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 81
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 82
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 83
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 84
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 85
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 86
+    },
+    {
+        "id_rol": 8,
+        "id_modulo": 87
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 88
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 89
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 90
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 91
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 92
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 93
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 94
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 95
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 96
+    },
+    {
+        "id_rol": 9,
+        "id_modulo": 97
+    },
+    {
+        "id_rol": 7,
+        "id_modulo": 98
+    },
+    {
+        "id_rol": 7,
+        "id_modulo": 99
+    },
+    {
+        "id_rol": 7,
+        "id_modulo": 100
+    },
+    {
+        "id_rol": 7,
+        "id_modulo": 101
+    },
+    {
+        "id_rol": 7,
+        "id_modulo": 102
+    },
+    {
+        "id_rol": 5,
+        "id_modulo": 103
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 104
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 105
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 106
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 107
+    },
+    {
+        "id_rol": 2,
+        "id_modulo": 108
+    }
+]
