@@ -21,6 +21,7 @@ use App\Http\Controllers\Superadministrador\VendedorController as SuperAdminVend
 use App\Http\Controllers\Superadministrador\AcademicoController as SuperAdminAcademicoController;
 use App\Http\Controllers\Superadministrador\AsistenciaController as SuperAdminAsistenciaController;
 use App\Http\Controllers\Superadministrador\MatriculaController as SuperAdminMatriculaController;
+use App\Http\Controllers\Superadministrador\TramiteSuperAdminController as SuperAdminTramiteController;
 use App\Http\Controllers\Admin\EstudianteController as AdminEstudianteController;
 use App\Http\Controllers\Admin\DocenteController as AdminDocenteController;
 use App\Http\Controllers\Admin\UsuarioController as AdminUsuarioController;
@@ -145,6 +146,12 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('usuarios/{id}/toggle-estado', [SuperAdminUsuarioController::class, 'toggleEstado']);
     Route::get('roles', [SuperAdminUsuarioController::class, 'listarRoles']);
     Route::get('sedes-listado', [SuperAdminUsuarioController::class, 'listarSedes']);
+    //Route::get('tramites', [SuperAdminTramiteController::class, 'index']);
+    //Route::post('tramites', [SuperAdminTramiteController::class, 'store']);
+    //Route::get('tramites/{id}', [SuperAdminTramiteController::class, 'show']);
+    //Route::put('tramites/{id}', [SuperAdminTramiteController::class, 'update']);
+    //Route::delete('tramites/{id}', [SuperAdminTramiteController::class, 'destroy']);
+    //Route::get('tramites/estado/{estado}', [SuperAdminTramiteController::class, 'porEstado']);
 });
 Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], function () {
     Route::get('estudiantes', [AdminEstudianteController::class, 'index']);
@@ -188,6 +195,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::delete('academico-periodo-curso-precios/{id_periodocursoprecio}', [AdminAcademicoController::class, 'destroyPeriodoCursoPrecio']);
     // Route::get('academico-plan-estudio-ciclos', [AdminAcademicoController::class, 'indexPlanEstudioCiclo']);
     // Route::get('academico-plan-estudio-cursos', [AdminAcademicoController::class, 'indexPlanEstudioCurso']);
+    Route::get('tramites', [SuperAdminTramiteController::class, 'index']);
+    Route::post('tramites', [SuperAdminTramiteController::class, 'store']);
+    Route::get('tramites/{id}', [SuperAdminTramiteController::class, 'show']);
+    Route::put('tramites/{id}', [SuperAdminTramiteController::class, 'update']);
+    Route::delete('tramites/{id}', [SuperAdminTramiteController::class, 'destroy']);
+    Route::get('tramites/estado/{estado}', [SuperAdminTramiteController::class, 'porEstado']);
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
     Route::get('academico-carreras', [AdminAcademicoController::class, 'indexCarrera']);
@@ -336,7 +349,7 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     Route::post('mi-academico-entrega-respuestas', [EstudianteMiAcademicoController::class, 'storeEntregaRespuesta']);
     Route::get('reportes/notas', [EstudianteReporteController::class, 'notas']);
     Route::get('reportes/matriculas', [EstudianteReporteController::class, 'matriculas']);
-    
+
     // Rutas de progreso y certificados
     Route::get('mi-progreso-curso/{id_periodocurso}', [EstudianteCertificadoController::class, 'getProgresoCurso']);
     Route::post('marcar-contenido-completado', [EstudianteCertificadoController::class, 'marcarContenidoCompletado']);
@@ -344,13 +357,13 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     Route::get('mis-cursos-progreso', [EstudianteCertificadoController::class, 'listarMisCursosProgreso']);
     Route::post('generar-certificado/{id_periodocurso}', [EstudianteCertificadoController::class, 'generarCertificado']);
     Route::get('descargar-certificado/{id_certificado}', [EstudianteCertificadoController::class, 'descargarCertificado']);
-    
+
     // Hito 5: Validación de acceso al curso pagado
     Route::get('courses/{id}/access', [EstudianteCertificadoController::class, 'checkCourseAccess']);
-    
+
     // Hito 6: Registro de progreso por lección
     Route::post('progress/lesson', [EstudianteCertificadoController::class, 'registerLessonProgress']);
-    
+
     // Hito 11: Descarga de certificado por course_id
     Route::get('certificates/{course_id}/download', [EstudianteCertificadoController::class, 'downloadCertificateByCourse']);
 
@@ -821,4 +834,3 @@ Route::group(['prefix' => 'user', 'middleware' => ['CheckUserMW:user']], functio
 //================================================================================================
 Route::get('plan-estudios-publicados', [WebPlanEstudioController::class, 'publicados']);
 Route::get('plan-estudios-publicados/{id_planestudio}', [WebPlanEstudioController::class, 'showPublicado']);
-
