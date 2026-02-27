@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class LicenciaTipo extends Model
 {
+    
     protected $table = 'licencia_tipo';
     protected $primaryKey = 'id_licenciatipo';
     public $timestamps = false;
@@ -19,5 +22,4 @@ class LicenciaTipo extends Model
         'id_usuarioreg',
         'fechareg',
     ];
-
 }
