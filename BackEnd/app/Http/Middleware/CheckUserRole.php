@@ -16,7 +16,8 @@ class CheckUserRole
      * @param  string  ...$roles  
      * @return mixed
      */
-    public function handle($request, Closure $next, ...$roles)
+
+    public function handle($request, Closure $next, $role)
     {
         try {
             $authorization = $request->header('Authorization') ?? "";

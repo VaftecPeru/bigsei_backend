@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class MembresiaTipoController extends Controller
 {
@@ -28,11 +29,8 @@ class MembresiaTipoController extends Controller
 
     public function activos(Request $request)
     {
-        if(isset($request->per_page)){
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 2;
-        }
+        $per_page = $request->per_page ?? 2;
+
         $result = DB::table("membresia_tipo")
             ->select(
                 "id_membresiatipo",
@@ -42,11 +40,10 @@ class MembresiaTipoController extends Controller
                 "precio_mes",
                 "es_anual"
             )
-            ->where("estado", "1");
-
-        $result->orderBy("es_anual", "desc");
-        $result->orderBy("precio", "desc");
-        $result = $result->paginate($per_page)
+            ->where("estado", "1")
+            ->orderBy("es_anual", "desc")
+            ->orderBy("precio", "desc")
+            ->paginate($per_page)
             ->through(fn ($membresiaTipo) => [
                 "id_membresiatipo" => $membresiaTipo->id_membresiatipo,
                 "nombre" => $membresiaTipo->nombre,
@@ -63,5 +60,37 @@ class MembresiaTipoController extends Controller
             ]);
 
         return response()->json($result);
+    }
+
+    // Nuevo método para crear tipos de membresía
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:500',
+            'precio' => 'required|numeric|min:0',
+            'precio_mes' => 'required|numeric|min:0',
+            'es_anual' => 'required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => implode(", ", $validator->messages()->all())
+            ], 400);
+        }
+
+        $id = DB::table('membresia_tipo')->insertGetId([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion ?? '',
+            'precio' => $request->precio,
+            'precio_mes' => $request->precio_mes,
+            'es_anual' => $request->es_anual,
+            'estado' => 1,
+            'fechareg' => now()
+        ]);
+
+        $nuevoTipo = DB::table('membresia_tipo')->where('id_membresiatipo', $id)->first();
+
+        return response()->json($nuevoTipo, 201);
     }
 }

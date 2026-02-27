@@ -22,4 +22,13 @@ class Licencia extends Model
         'fechareg',
     ];
 
+    public function tipo()
+    {
+        return $this->belongsTo(\App\Models\LicenciaTipo::class, 'id_licenciatipo', 'id_licenciatipo');
+    }
+
+    public function empresa()
+    {
+        return $this->belongsTo(\App\Models\Empresa::class, 'id_empresa', 'id_empresa');
+    }
 }
