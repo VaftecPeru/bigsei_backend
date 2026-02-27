@@ -21,6 +21,12 @@ class CheckUserRole
         try {
             $authorization = $request->header('Authorization') ?? "";
             $token = str_replace("Bearer ", "", $authorization);
+
+            // #2 XSS: Si no viene en el header, leer desde la cookie HttpOnly
+            if (empty($token)) {
+                $token = $request->cookie('token') ?? "";
+            }
+
             $allowedRoles = [];
             foreach ($roles as $role) {
                 $allowedRoles = array_merge($allowedRoles, explode(',', $role));

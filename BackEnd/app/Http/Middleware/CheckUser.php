@@ -19,8 +19,14 @@ class CheckUser
     public function handle($request, Closure $next, $role)
     {
         try {
+            // Leer token: primero desde el header Authorization, luego desde la cookie HttpOnly
             $authorization = $request->header('Authorization') ?? "";
             $token = str_replace("Bearer ", "", $authorization);
+
+            // #2 XSS: Si no viene en el header, intentar desde la cookie HttpOnly
+            if (empty($token)) {
+                $token = $request->cookie('token') ?? "";
+            }
             $usuarioSesion = UsuarioSesion::where("token", $token)
                 ->where("estado", "1")
                 ->first();

@@ -167,12 +167,15 @@ class AuthController extends Controller
         $usuarioSesion["fechamod"] = now();
         $usuarioSesion = UsuarioSesion::create($usuarioSesion);
 
+        // Tiempo de expiración: 8 horas en minutos
+        $minutosExpiracion = 60 * 8;
+
         return response()->json([
-            "token" => $usuarioSesion->token,
+            "token"      => $usuarioSesion->token,
             "id_usuario" => $usuario->id_usuario,
-            "nombre" => $usuario->nombre_completop,
-            "message" => 'Se logueo correctamente.',
-            "url_base" => $usuario->url_base,
+            "nombre"     => $usuario->nombre_completop,
+            "message"    => 'Se logueo correctamente.',
+            "url_base"   => $usuario->url_base,
         ], 200);
     }
 
@@ -191,7 +194,9 @@ class AuthController extends Controller
             ->where("estado", "1")
             ->update(["estado" => "0"]);
 
-        return response()->json(['message' => 'Peticiòn exitosa.'], 200);
+        // Eliminar también la cookie HttpOnly del token
+        return response()->json(['message' => 'Peticiòn exitosa.'], 200)
+            ->cookie('token', '', -1, '/', null, true, true, false, 'Strict');
     }
 
     public static function resetToken($id_usuario, $id_empresa, $id_rol)

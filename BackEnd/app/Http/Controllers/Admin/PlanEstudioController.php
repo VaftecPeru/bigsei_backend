@@ -365,7 +365,7 @@ class PlanEstudioController extends Controller
 
         $archivo = null;
         if ($request->hasFile("file")) {
-            $archivo = ArchivoController::registrarArchivo($request->file, $user->id_usuario, "5", null, null, null);
+            $archivo = ArchivoController::registrarArchivo($request->file('file'), $user->id_usuario, "5", null, null, null);
         }
 
         $curso = [];
@@ -425,9 +425,9 @@ class PlanEstudioController extends Controller
         $archivo = null;
         if($request->hasFile("file")) {
             if($curso->id_archivo) {
-                $archivo = ArchivoController::editarArchivo($request->file, $curso->id_archivo);
+                $archivo = ArchivoController::editarArchivo($request->file('file'), $curso->id_archivo);
             } else {
-                $archivo = ArchivoController::registrarArchivo($request->file, $user->id_usuario, "5", null, null, null);
+                $archivo = ArchivoController::registrarArchivo($request->file('file'), $user->id_usuario, "5", null, null, null);
             }
         }
 

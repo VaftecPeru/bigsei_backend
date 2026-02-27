@@ -18,8 +18,19 @@ use App\Http\Controllers\Superadministrador\EstudianteController as SuperAdminEs
 use App\Http\Controllers\Superadministrador\DocenteController as SuperAdminDocenteController;
 use App\Http\Controllers\Superadministrador\EmpresaController as SuperAdminEmpresaController;
 use App\Http\Controllers\Superadministrador\VendedorController as SuperAdminVendedorController;
+use App\Http\Controllers\Superadministrador\ClienteController as SuperAdminClienteController;
+use App\Http\Controllers\Superadministrador\LicenciaController as SuperAdminLicenciaController;
+use App\Http\Controllers\Superadministrador\MembresiaController as SuperAdminMembresiaController;
+use App\Http\Controllers\Superadministrador\PlanesController as SuperAdminPlanesController;
+use App\Http\Controllers\Superadministrador\FacturacionController as SuperAdminFacturacionController;
+use App\Http\Controllers\Superadministrador\AuditoriaController as SuperAdminAuditoriaController;
+use App\Http\Controllers\Superadministrador\ConfiguracionController as SuperAdminConfiguracionController;
+use App\Http\Controllers\Superadministrador\ReportesController as SuperAdminReportesController;
 use App\Http\Controllers\Superadministrador\AcademicoController as SuperAdminAcademicoController;
 use App\Http\Controllers\Superadministrador\AsistenciaController as SuperAdminAsistenciaController;
+use App\Http\Controllers\Superadministrador\LicenciaDashboardController as SuperAdminLicenciaDashController;
+use App\Http\Controllers\Web\RecuperarPasswordController;
+use App\Http\Controllers\Web\MembresiaGestionController;
 use App\Http\Controllers\Superadministrador\MatriculaController as SuperAdminMatriculaController;
 use App\Http\Controllers\Superadministrador\TramiteSuperAdminController as SuperAdminTramiteController;
 use App\Http\Controllers\Admin\EstudianteController as AdminEstudianteController;
@@ -31,6 +42,8 @@ use App\Http\Controllers\Admin\MembresiaAdminController as AdminMembresiaControl
 use App\Http\Controllers\Admin\RolController as AdminRolController;
 use App\Http\Controllers\Admin\ModuloController as AdminModuloController;
 use App\Http\Controllers\Admin\PlanEstudioController as AdminPlanEstudioController;
+use App\Http\Controllers\Admin\FacturacionAdminController as AdminFacturacionController;
+use App\Http\Controllers\Admin\ConfigEmpresaController as AdminConfigEmpresaController;
 use App\Http\Controllers\Director\EstudianteController as DirectorEstudianteController;
 use App\Http\Controllers\Director\DocenteController as DirectorDocenteController;
 use App\Http\Controllers\Director\AcademicoController as DirectorAcademicoController;
@@ -46,6 +59,10 @@ use App\Http\Controllers\Docente\AsistenciaController as DocenteAsistenciaContro
 use App\Http\Controllers\Docente\MiAsistenciaController as DocenteMiAsistenciaController;
 use App\Http\Controllers\Docente\EvaluacionNotaController as DocenteEvaluacionNotaController;
 use App\Http\Controllers\Docente\EvaluacionCriterioController as DocenteEvaluacionCriterioController;
+use App\Http\Controllers\Docente\ForoController as DocenteForoController;
+use App\Http\Controllers\Docente\ClasesEnVivoController as DocenteClasesEnVivoController;
+use App\Http\Controllers\Docente\NotificacionController as DocenteNotificacionController;
+use App\Http\Controllers\Docente\BancoPreguntasController as DocenteBancoPreguntasController;
 use App\Http\Controllers\Estudiante\MiCarreraController as EstudianteMiCarreraController;
 use App\Http\Controllers\Estudiante\MiPerfilController as EstudianteMiPerfilController;
 use App\Http\Controllers\Estudiante\MiNotaController as EstudianteMiNotaController;
@@ -55,7 +72,11 @@ use App\Http\Controllers\Estudiante\MiMatriculaController as EstudianteMiMatricu
 use App\Http\Controllers\Estudiante\ReporteController as EstudianteReporteController;
 use App\Http\Controllers\Estudiante\CertificadoController as EstudianteCertificadoController;
 use App\Http\Controllers\Estudiante\ResenaController as EstudianteResenaController;
+use App\Http\Controllers\Estudiante\HistorialPagoController as EstudianteHistorialPagoController;
+use App\Http\Controllers\Estudiante\ForoEstudianteController as EstudianteForoController;
+use App\Http\Controllers\Estudiante\ListaDeseosController as EstudianteListaDeseosController;
 use App\Http\Controllers\Padre\PadreController;
+use App\Http\Controllers\Padre\MensajeriaDocenteController as PadreMensajeriaController;
 use App\Http\Controllers\Setup\ArchivoController as SetupArchivoController;
 use App\Http\Controllers\Setup\TipoDocumentoController as SetupTipoDocumentoController;
 use App\Http\Controllers\Setup\TipoModalidadestudioController as SetupTipoModalidadestudioController;
@@ -113,6 +134,16 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('empresas/{id_empresa}/archivos', [SuperAdminEmpresaController::class, 'storeArchivo']);
     Route::delete('empresas/{id_empresa}', [SuperAdminEmpresaController::class, 'destroy']);
     Route::get('vendedores', [SuperAdminVendedorController::class, 'index']);
+    Route::get('vendedores/{id_vendedor}', [SuperAdminVendedorController::class, 'show']);
+    Route::post('vendedores', [SuperAdminVendedorController::class, 'store']);
+    Route::put('vendedores/{id_vendedor}', [SuperAdminVendedorController::class, 'update']);
+    Route::delete('vendedores/{id_vendedor}', [SuperAdminVendedorController::class, 'destroy']);
+    // Clientes
+    Route::get('clientes', [SuperAdminClienteController::class, 'index']);
+    Route::get('clientes/{id_cliente}', [SuperAdminClienteController::class, 'show']);
+    Route::post('clientes', [SuperAdminClienteController::class, 'store']);
+    Route::put('clientes/{id_cliente}', [SuperAdminClienteController::class, 'update']);
+    Route::delete('clientes/{id_cliente}', [SuperAdminClienteController::class, 'destroy']);
     Route::get('academico-periodos', [SuperAdminAcademicoController::class, 'indexPeriodo']);
     Route::get('academico-periodos/{id_periodo}', [SuperAdminAcademicoController::class, 'showPeriodo']);
     Route::post('academico-periodos', [SuperAdminAcademicoController::class, 'storePeriodo']);
@@ -152,6 +183,50 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     //Route::put('tramites/{id}', [SuperAdminTramiteController::class, 'update']);
     //Route::delete('tramites/{id}', [SuperAdminTramiteController::class, 'destroy']);
     //Route::get('tramites/estado/{estado}', [SuperAdminTramiteController::class, 'porEstado']);
+    // Licencias
+    Route::get('licencias', [SuperAdminLicenciaController::class, 'index']);
+    Route::get('licencias/stats', [SuperAdminLicenciaController::class, 'stats']);
+    Route::get('licencias/{id}', [SuperAdminLicenciaController::class, 'show']);
+    Route::post('licencias/{id}/activar', [SuperAdminLicenciaController::class, 'activar']);
+    Route::post('licencias/{id}/desactivar', [SuperAdminLicenciaController::class, 'desactivar']);
+    Route::post('licencias/{id}/renovar', [SuperAdminLicenciaController::class, 'renovar']);
+    // Dashboard de uso y gestión avanzada de licencias
+    Route::get('licencias/dashboard-uso', [SuperAdminLicenciaDashController::class, 'dashboardUso']);
+    Route::get('licencias/alertas', [SuperAdminLicenciaDashController::class, 'alertas']);
+    Route::get('licencias/modulos', [SuperAdminLicenciaDashController::class, 'modulos']);
+    Route::post('licencias/{id}/modulos', [SuperAdminLicenciaDashController::class, 'toggleModulo']);
+    Route::get('licencias/{id}/onboarding', [SuperAdminLicenciaDashController::class, 'onboarding']);
+    Route::get('licencias/{id}/limites', [SuperAdminLicenciaDashController::class, 'limites']);
+    // Membresias
+    Route::get('membresias', [SuperAdminMembresiaController::class, 'index']);
+    Route::get('membresias/stats', [SuperAdminMembresiaController::class, 'stats']);
+    Route::get('membresias/{id}', [SuperAdminMembresiaController::class, 'show']);
+    Route::post('membresias/{id}/activar', [SuperAdminMembresiaController::class, 'activar']);
+    Route::post('membresias/{id}/desactivar', [SuperAdminMembresiaController::class, 'desactivar']);
+    // Planes (tipos)
+    Route::get('planes/membresia-tipos', [SuperAdminPlanesController::class, 'indexMembresiaTipo']);
+    Route::post('planes/membresia-tipos', [SuperAdminPlanesController::class, 'storeMembresiaTipo']);
+    Route::put('planes/membresia-tipos/{id}', [SuperAdminPlanesController::class, 'updateMembresiaTipo']);
+    Route::get('planes/licencia-tipos', [SuperAdminPlanesController::class, 'indexLicenciaTipo']);
+    Route::post('planes/licencia-tipos', [SuperAdminPlanesController::class, 'storeLicenciaTipo']);
+    Route::put('planes/licencia-tipos/{id}', [SuperAdminPlanesController::class, 'updateLicenciaTipo']);
+    // Facturación
+    Route::get('facturacion', [SuperAdminFacturacionController::class, 'index']);
+    Route::get('facturacion/resumen', [SuperAdminFacturacionController::class, 'resumen']);
+    // Auditoría
+    Route::get('auditoria', [SuperAdminAuditoriaController::class, 'index']);
+    Route::get('auditoria/stats', [SuperAdminAuditoriaController::class, 'stats']);
+    // Configuración global
+    Route::get('configuracion', [SuperAdminConfiguracionController::class, 'index']);
+    Route::put('configuracion', [SuperAdminConfiguracionController::class, 'update']);
+    Route::get('configuracion/stats', [SuperAdminConfiguracionController::class, 'stats']);
+    // Reportes de crecimiento
+    Route::get('reportes/crecimiento', [SuperAdminReportesController::class, 'crecimiento']);
+    Route::get('reportes/dashboard', [SuperAdminReportesController::class, 'dashboard']);
+    // Usuarios pendientes
+    Route::get('usuarios-pendientes', [SuperAdminReportesController::class, 'pendientesUsuarios']);
+    Route::post('usuarios-pendientes/{id}/aprobar', [SuperAdminReportesController::class, 'aprobarUsuario']);
+    Route::delete('usuarios-pendientes/{id}/rechazar', [SuperAdminReportesController::class, 'rechazarUsuario']);
 });
 Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], function () {
     Route::get('estudiantes', [AdminEstudianteController::class, 'index']);
@@ -215,6 +290,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::put('roles/{id_usuariorol}/elegir-principal', [AdminRolController::class, 'elegirPrincipal']);
     Route::get('modulos', [AdminModuloController::class, 'index']);
     Route::get('membresias-sede', [AdminMembresiaController::class, 'listarPorSede']);
+    // Facturación Admin
+    Route::get('facturacion', [AdminFacturacionController::class, 'index']);
+    Route::get('facturacion/resumen', [AdminFacturacionController::class, 'resumen']);
+    // Configuración de empresa
+    Route::get('config-empresa', [AdminConfigEmpresaController::class, 'show']);
+    Route::put('config-empresa', [AdminConfigEmpresaController::class, 'update']);
+    Route::get('config-empresa/stats', [AdminConfigEmpresaController::class, 'stats']);
     Route::get('academico-periodo-horarios', [AdminAcademicoController::class, 'indexPeriodoHorario']);
     Route::get('academico-periodo-horarios/{id_periodohorario}', [AdminAcademicoController::class, 'showPeriodoHorario']);
     Route::post('academico-periodo-horarios', [AdminAcademicoController::class, 'storePeriodoHorario']);
@@ -319,6 +401,27 @@ Route::group(['prefix' => 'docente', 'middleware' => ['CheckUserRoleMW:docente']
     Route::get('evaluacion-criterios', [DocenteEvaluacionCriterioController::class, 'index']);
     Route::post('evaluacion-criterios', [DocenteEvaluacionCriterioController::class, 'store']);
     Route::put('evaluacion-criterios/{id_evaluacioncriterio}', [DocenteEvaluacionCriterioController::class, 'update']);
+    // Foros de discusión
+    Route::get('foro-temas', [DocenteForoController::class, 'indexTema']);
+    Route::post('foro-temas', [DocenteForoController::class, 'storeTema']);
+    Route::get('foro-respuestas', [DocenteForoController::class, 'indexRespuesta']);
+    Route::post('foro-respuestas', [DocenteForoController::class, 'storeRespuesta']);
+    // Clases en vivo
+    Route::get('clases-vivo', [DocenteClasesEnVivoController::class, 'index']);
+    Route::post('clases-vivo', [DocenteClasesEnVivoController::class, 'store']);
+    Route::put('clases-vivo/{id}', [DocenteClasesEnVivoController::class, 'update']);
+    Route::delete('clases-vivo/{id}', [DocenteClasesEnVivoController::class, 'destroy']);
+    // Notificaciones
+    Route::get('notificaciones', [DocenteNotificacionController::class, 'index']);
+    Route::post('notificaciones', [DocenteNotificacionController::class, 'store']);
+    Route::put('notificaciones/{id}/leer', [DocenteNotificacionController::class, 'marcarLeida']);
+    Route::get('notificaciones/no-leidas', [DocenteNotificacionController::class, 'noLeidas']);
+    // Banco de preguntas
+    Route::get('banco-preguntas', [DocenteBancoPreguntasController::class, 'index']);
+    Route::post('banco-preguntas', [DocenteBancoPreguntasController::class, 'store']);
+    Route::get('banco-preguntas/{id}', [DocenteBancoPreguntasController::class, 'show']);
+    Route::put('banco-preguntas/{id}', [DocenteBancoPreguntasController::class, 'update']);
+    Route::delete('banco-preguntas/{id}', [DocenteBancoPreguntasController::class, 'destroy']);
 });
 Route::group(['prefix' => 'new-student'], function () {
     // route
@@ -370,6 +473,19 @@ Route::group(['prefix' => 'estudiante', 'middleware' => ['CheckUserRoleMW:supera
     // Reseñas de cursos
     Route::get('mis-resenas', [EstudianteResenaController::class, 'index']);
     Route::post('mis-resenas', [EstudianteResenaController::class, 'store']);
+    // Historial de pagos
+    Route::get('historial-pagos', [EstudianteHistorialPagoController::class, 'index']);
+    Route::get('historial-pagos/resumen', [EstudianteHistorialPagoController::class, 'resumen']);
+    // Foros del estudiante
+    Route::get('foro-temas', [EstudianteForoController::class, 'indexTema']);
+    Route::get('foro-respuestas', [EstudianteForoController::class, 'indexRespuesta']);
+    Route::post('foro-respuestas', [EstudianteForoController::class, 'storeRespuesta']);
+    // Seguimiento de trámites propios
+    Route::get('mis-tramites', [EstudianteForoController::class, 'misTramites']);
+    // Lista de deseos
+    Route::get('lista-deseos', [EstudianteListaDeseosController::class, 'index']);
+    Route::post('lista-deseos', [EstudianteListaDeseosController::class, 'store']);
+    Route::delete('lista-deseos/{id}', [EstudianteListaDeseosController::class, 'destroy']);
 });
 Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], function () {
     Route::get('dashboard', [PadreController::class, 'dashboard']);
@@ -378,6 +494,11 @@ Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], f
     Route::get('mis-hijos/{idHijo}/notas', [PadreController::class, 'notasHijo']);
     Route::get('mis-hijos/{idHijo}/asistencia', [PadreController::class, 'asistenciaHijo']);
     Route::get('mis-hijos/{idHijo}/pagos', [PadreController::class, 'pagosHijo']);
+    // Mensajería con docentes
+    Route::get('mensajes', [PadreMensajeriaController::class, 'index']);
+    Route::get('mensajes/docentes', [PadreMensajeriaController::class, 'docentesHijos']);
+    Route::post('mensajes', [PadreMensajeriaController::class, 'store']);
+    Route::put('mensajes/{id}/leer', [PadreMensajeriaController::class, 'marcarLeido']);
 });
 Route::group(['prefix' => 'tutor', 'middleware' => ['CheckUserRoleMW:tutor']], function () {
     // Rutas específicas para el rol Tutor
@@ -833,4 +954,18 @@ Route::group(['prefix' => 'user', 'middleware' => ['CheckUserMW:user']], functio
 // RUTAS PÚBLICAS (SIN AUTENTICACIÓN) - Portada
 //================================================================================================
 Route::get('plan-estudios-publicados', [WebPlanEstudioController::class, 'publicados']);
-Route::get('plan-estudios-publicados/{id_planestudio}', [WebPlanEstudioController::class, 'showPublicado']);
+// Recuperar contraseña (rutas públicas, sin autenticación)
+Route::post('recuperar-password/solicitar', [RecuperarPasswordController::class, 'solicitar']);
+Route::post('recuperar-password/verificar-token', [RecuperarPasswordController::class, 'verificarToken']);
+Route::post('recuperar-password/resetear', [RecuperarPasswordController::class, 'resetear']);
+
+// Membresía personal (usuario web autenticado)
+Route::middleware(['CheckUserMW:user'])->group(function () {
+    Route::get('mi-membresia/historial', [MembresiaGestionController::class, 'historial']);
+    Route::get('mi-membresia/verificar-activa', [MembresiaGestionController::class, 'verificarActiva']);
+    Route::get('mi-membresia/periodo-gracia', [MembresiaGestionController::class, 'periodoGracia']);
+    Route::post('mi-membresia/{id}/renovar', [MembresiaGestionController::class, 'renovar']);
+    Route::post('mi-membresia/{id}/cancelar', [MembresiaGestionController::class, 'cancelar']);
+    Route::post('mi-membresia/{id}/cambiar-plan', [MembresiaGestionController::class, 'cambiarPlan']);
+});
+
