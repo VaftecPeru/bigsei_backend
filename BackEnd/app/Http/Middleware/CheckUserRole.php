@@ -16,6 +16,7 @@ class CheckUserRole
      * @param  string  $role  // Este es el tercer parámetro que es el rol que pasas desde la ruta
      * @return mixed
      */
+
     public function handle($request, Closure $next, $role)
     {
         try {

@@ -81,10 +81,18 @@ use App\Http\Controllers\Web\TemaController as WebTemaController;
 use App\Http\Controllers\Web\EmpresaController as WebEmpresaController;
 use App\Http\Controllers\Web\MiMembresiaController as WebMiMembresiaController;
 use App\Http\Controllers\Web\MiMatriculaController as WebMiMatriculaController;
+use App\Http\Controllers\Web\ClienteController as ClienteController;
+
 
 //RUTAS
 
 Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleMW:superadministrador']], function () {
+    //membresias
+    Route::get('/membresias/tipo/{id}', [MembresiaTipoController::class, 'show']);
+    Route::get('/membresias/tipo', [MembresiaTipoController::class, 'activos']);
+    Route::post('/membresias/tipo', [MembresiaTipoController::class, 'store']); // <-- crear nuevo
+
+
     Route::get('estudiantes', [SuperAdminEstudianteController::class, 'index']);
     Route::get('estudiantes/{id_estudiante}', [SuperAdminEstudianteController::class, 'show']);
     Route::post('estudiantes', [SuperAdminEstudianteController::class, 'store']);
@@ -123,6 +131,7 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
+    
 });
 Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], function () {
     Route::get('estudiantes', [AdminEstudianteController::class, 'index']);
@@ -166,7 +175,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['CheckUserRoleMW:admin']], f
     Route::delete('academico-periodo-curso-precios/{id_periodocursoprecio}', [AdminAcademicoController::class, 'destroyPeriodoCursoPrecio']);
     // Route::get('academico-plan-estudio-ciclos', [AdminAcademicoController::class, 'indexPlanEstudioCiclo']);
     // Route::get('academico-plan-estudio-cursos', [AdminAcademicoController::class, 'indexPlanEstudioCurso']);
-    Route::get('academico-carreras', [AdminAcademicoController::class, 'indexCarrera']);
+    Route::get('    ', [AdminAcademicoController::class, 'indexCarrera']);
     Route::get('mensajerias/grupos', [AdminMensajeriaController::class, 'indexGrupo']);
     Route::post('mensajerias/grupos', [AdminMensajeriaController::class, 'storeGrupo']);
     Route::get('mensajerias/personas', [AdminMensajeriaController::class, 'indexPersona']);
@@ -426,7 +435,7 @@ Route::group(['prefix' => 'setup'], function () {
     Route::get('archivos/{id_archivo}/visualizar-imagenes', [SetupArchivoController::class, 'imagen']);
 });
 
-Route::group(['prefix' => 'web'], function () {
+    Route::group(['prefix' => 'web'], function () {
     Route::get('matriculas/curso-libres', [WebMatriculaController::class, 'cursoLibres']);
     Route::get('matriculas/curso-libres/{id_periodocurso}', [WebMatriculaController::class, 'showCursoLibres']);
     Route::post('matriculas/curso-libres', [WebMatriculaController::class, 'storeCursoLibre']);
@@ -439,8 +448,18 @@ Route::group(['prefix' => 'web'], function () {
     Route::post('membresias', [WebMembresiaController::class, 'store']);
     Route::post('solicitudes/empresas', [WebSolicitudController::class, 'storeEmpresa']);
     Route::post('solicitudes/contactos', [WebSolicitudController::class, 'storeContacto']);
+    //Licencia
     Route::get('licencias/tipo-activos', [WebLicenciaController::class, 'tipoActivos']);
     Route::post('licencias', [WebLicenciaController::class, 'store']);
+    // Activar / Desactivar licencia
+    Route::patch('licencias/{id}/toggle', [WebLicenciaController::class, 'toggle']);
+    // Renovar licencia
+    Route::patch('licencias/{id}/renew', [WebLicenciaController::class, 'renew']);
+    // Crear un nuevo tipo de licencia
+    Route::post('licencias/tipo', [WebLicenciaController::class, 'storeTipo']);
+    // Listar licencias
+    Route::get('licencias', [WebLicenciaController::class, 'index']);
+
     Route::get('carreras', [WebCarreraController::class, 'activas']);
     Route::get('carreras/tipo-titulo-academico', [WebCarreraController::class, 'tipoTituloAcademicos']);
     Route::get('tipo-categorias/por-temas', [WebTipoCategoriaController::class, 'porTemas']);

@@ -29,7 +29,7 @@ class Usuario extends Authenticatable implements JWTSubject //, Model
         'direccion',
         'foto',
         'username',
-        'password',
+        'password', 
         'estado',
         'id_usuarioreg',
         'id_usuariomod',

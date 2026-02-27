@@ -17,6 +17,9 @@ use App\Http\Controllers\AuthController;
 
 class LicenciaController extends Controller
 {
+    // ----------------------
+    // Crear licencia normal
+    // ----------------------
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -33,25 +36,10 @@ class LicenciaController extends Controller
             'empresa_id_tipodocumento' => 'required',
             'empresa_numero_documento' => 'required|max:50',
             'empresa_razon_social' => 'required|max:255',
-        ], [
-            'id_licenciatipo' => 'La licencia es requerida',
-            'precio' => 'El precio es requerido',
-            'id_tipodocumento' => 'El tipo documento es requerido',
-            'numero_documento' => 'El número documento es requerido',
-            'nombre_completo' => 'El nombre es requerido',
-            'telefono' => 'El teléfono es requerido',
-            'direccion' => 'El dirección es requerido',
-            'correo' => 'El correo es requerido',
-            'numero_operacion' => 'El número operación es requerido',
-            'importe_operacion' => 'El importe es requerido',
-            'empresa_id_tipodocumento' => 'El tipo de documento es requerido',
-            'empresa_numero_documento' => 'El número de documento es requerido',
-            'empresa_razon_social' => 'La razón social es requerida',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(
-                implode(",",$validator->messages()->all()), 400);
+            return response()->json(implode(",", $validator->messages()->all()), 400);
         }
 
         $licenciaTipo = LicenciaTipo::find($request->id_licenciatipo);
@@ -59,10 +47,9 @@ class LicenciaController extends Controller
             return response()->json('Error. El tipo de licencia no existe.', 400);
         }
 
-        $correoUsuario = Usuario::where("email", $request->correo)
-            ->first();
+        $correoUsuario = Usuario::where("email", $request->correo)->first();
         if ($correoUsuario) {
-            return response()->json('¡Atención! El correo de usuario en esta registrado por otra persona.', 400);
+            return response()->json('¡Atención! El correo de usuario está registrado por otra persona.', 400);
         }
 
         $numeroDocumentoPersona = Persona::where("numero_documento", $request->numero_documento)
@@ -77,79 +64,72 @@ class LicenciaController extends Controller
             return response()->json('Error. El número de documento empresa existe.', 400);
         }
 
-        $persona = [];
-        $persona["id_tipodocumento"] = $request->id_tipodocumento;
-        $persona["numero_documento"] = $request->numero_documento;
-        $persona["nombre_completo"] = $request->nombre_completo;
-        $persona["telefono"] = $request->telefono;
-        $persona["direccion"] = $request->direccion;
-        $persona["correo"] = $request->correo;
-        $persona["fechareg"] = now();
-        $persona["estado"] = '1';
-        $persona = Persona::create($persona);
+        // Crear persona, empresa, usuario y rol
+        $persona = Persona::create([
+            "id_tipodocumento" => $request->id_tipodocumento,
+            "numero_documento" => $request->numero_documento,
+            "nombre_completo" => $request->nombre_completo,
+            "telefono" => $request->telefono,
+            "direccion" => $request->direccion,
+            "correo" => $request->correo,
+            "fechareg" => now(),
+            "estado" => '1'
+        ]);
 
-        $empresa = [];
-        $empresa["id_tipodocumento"] = $request->empresa_id_tipodocumento;
-        $empresa["numero_documento"] = $request->empresa_numero_documento;
-        $empresa["razon_social"] = $request->empresa_razon_social;
-        $empresa["tipo_relacion"] = "C";
-        $empresa["correo"] = $request->correo;
-        $empresa["contacto"] = $request->nombre_completo;
-        $empresa = Empresa::create($empresa);
+        $empresa = Empresa::create([
+            "id_tipodocumento" => $request->empresa_id_tipodocumento,
+            "numero_documento" => $request->empresa_numero_documento,
+            "razon_social" => $request->empresa_razon_social,
+            "tipo_relacion" => "C",
+            "correo" => $request->correo,
+            "contacto" => $request->nombre_completo
+        ]);
 
-        $usuario = [];
-        $usuario["id_usuario"] = $persona->id_persona;
-        $usuario["email"] = $request->correo;
-        $usuario["username"] = $request->correo;
-        $usuario["password"] = Hash::make("123");
-        $usuario["estado"] = "1";
-        $usuario["fechareg"] = now();
-        $usuario = Usuario::create($usuario);
+        $usuario = Usuario::create([
+            "id_usuario" => $persona->id_persona,
+            "email" => $request->correo,
+            "username" => $request->correo,
+            "password" => Hash::make("123"),
+            "estado" => "1",
+            "fechareg" => now()
+        ]);
 
         $idRolAdmin = 2;  // admin
-        $usuarioRol = [];
-        $usuarioRol["id_empresa"] = $empresa->id_empresa;
-        $usuarioRol["id_usuario"] = $persona->id_persona;
-        $usuarioRol["id_rol"] = $idRolAdmin;
-        $usuarioRol["es_principal"] = "1";
-        $usuarioRol = UsuarioRol::create($usuarioRol);
+        UsuarioRol::create([
+            "id_empresa" => $empresa->id_empresa,
+            "id_usuario" => $persona->id_persona,
+            "id_rol" => $idRolAdmin,
+            "es_principal" => "1"
+        ]);
 
-        $licencia = [];
-        $licencia["id_empresa"] = $empresa->id_empresa;
-        $licencia["id_licenciatipo"] = $request->id_licenciatipo;
-        $licencia["precio"] = $request->precio;
-        $licencia["fecha_inicio"] = now();
-        $licencia["fecha_fin"] = now()->addYear();
-        $licencia["estado"] = "1";
-        $licencia["fechareg"] = now();
-        $licencia = Licencia::create($licencia);
+        $licencia = Licencia::create([
+            "id_empresa" => $empresa->id_empresa,
+            "id_licenciatipo" => $request->id_licenciatipo,
+            "precio" => $request->precio,
+            "fecha_inicio" => now(),
+            "fecha_fin" => now()->addYear(),
+            "estado" => "1",
+            "fechareg" => now()
+        ]);
 
         $token = AuthController::resetToken($persona->id_persona, null, $idRolAdmin);
-
-        $licencia = Licencia::find($licencia->id_licencia);
         $licencia->token = $token;
 
         return response()->json($licencia);
     }
 
+    // ----------------------
+    // Listar tipos de licencia activos
+    // ----------------------
     public function tipoActivos(Request $request)
     {
-        if(isset($request->per_page)){
-            $per_page = $request->per_page;
-        } else {
-            $per_page = 2;
-        }
-        $result = DB::table("licencia_tipo")
-            ->select(
-                "id_licenciatipo",
-                "nombre",
-                "descripcion",
-                "precio"
-            )
-            ->where("estado", "1");
+        $per_page = $request->per_page ?? 4;
 
-        $result->orderBy("precio", "desc");
-        $result = $result->paginate($per_page)
+        $result = DB::table("licencia_tipo")
+            ->select("id_licenciatipo","nombre","descripcion","precio")
+            ->where("estado", "1")
+            ->orderBy("precio", "desc")
+            ->paginate($per_page)
             ->through(fn ($licenciaTipo) => [
                 "id_licenciatipo" => $licenciaTipo->id_licenciatipo,
                 "nombre" => $licenciaTipo->nombre,
@@ -157,12 +137,80 @@ class LicenciaController extends Controller
                 "precio" => $licenciaTipo->precio,
                 "tipo_beneficios" => DB::table("tipo_beneficio as a")
                     ->join("licencia_tipo_beneficio as b", "a.id_tipobeneficio", "b.id_tipobeneficio")
-                    ->select("a.descripcion", "b.orden", ".esta_habilitado")
+                    ->select("a.descripcion", "b.orden", "b.esta_habilitado")
                     ->where("b.id_licenciatipo", $licenciaTipo->id_licenciatipo)
                     ->orderBy("orden", "asc")
                     ->get()
             ]);
 
         return response()->json($result);
+    }
+
+    // ----------------------
+    // Crear nuevo tipo de licencia
+    // ----------------------
+    public function storeTipo(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'precio' => 'required|numeric|min:0',
+            'estado' => 'required|in:0,1',
+        ]);
+
+        $tipo = LicenciaTipo::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'precio' => $request->precio,
+            'estado' => $request->estado,
+            'id_usuarioreg' => auth()->id() ?? 1,
+            'fechareg' => now(),
+        ]);
+
+        return response()->json($tipo, 201);
+    }
+
+    // ----------------------
+    // Listar licencias activas (nuevo)
+    // ----------------------
+    public function index(Request $request)
+    {
+        $per_page = $request->per_page ?? 4;
+
+        $licencias = Licencia::with(['tipo','empresa'])
+            ->orderBy('fecha_inicio','desc')
+            ->paginate($per_page);
+
+        return response()->json($licencias);
+    }
+
+    // ----------------------
+    // Activar / Desactivar licencia
+    // ----------------------
+    public function toggle($id)
+    {
+        $licencia = Licencia::find($id);
+        if (!$licencia) {
+            return response()->json(['error' => 'Licencia no encontrada'], 404);
+        }
+        $licencia->estado = $licencia->estado == 1 ? 0 : 1;
+        $licencia->save();
+
+        return response()->json(['success' => true, 'estado' => $licencia->estado]);
+    }
+
+    // ----------------------
+    // Renovar licencia
+    // ----------------------
+    public function renew($id)
+    {
+        $licencia = Licencia::find($id);
+        if (!$licencia) {
+            return response()->json(['error' => 'Licencia no encontrada'], 404);
+        }
+        $licencia->fecha_fin = now()->addYear();
+        $licencia->save();
+
+        return response()->json(['success' => true, 'fecha_fin' => $licencia->fecha_fin]);
     }
 }
