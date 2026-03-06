@@ -8,21 +8,22 @@ class Doctor extends Model
 {
     protected $table = 'doctor';
     protected $primaryKey = 'id_doctor';
-    public $incrementing = false; // viene de persona
-    protected $keyType = 'int';
+    public $timestamps = false;
 
     protected $fillable = [
-        'id_doctor',
         'especialidad',
+        'nombre',
+        'apellido',
+        'telefono',
+        'email',
+        'fecha_contratacion',
+        'estado',
+        'id_empresa'
     ];
 
-    public function persona()
+    // 🔗 Relación: Doctor pertenece a Empresa
+    public function empresa()
     {
-        return $this->belongsTo(Persona::class, 'id_doctor', 'id_persona');
-    }
-
-    public function citas()
-    {
-        return $this->hasMany(CitaMedica::class, 'id_doctor');
+        return $this->belongsTo(Empresa::class, 'id_empresa', 'id_empresa');
     }
 }

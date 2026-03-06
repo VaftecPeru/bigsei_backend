@@ -9,7 +9,6 @@ class Empresa extends Model
     protected $table = 'empresa';
     protected $primaryKey = 'id_empresa';
     public $timestamps = false;
-    // public $incrementing = false;
 
     protected $fillable = [
         'id_empresa',
@@ -35,4 +34,10 @@ class Empresa extends Model
         'url_img',
         'id_archivo'
     ];
+
+    // 🔗 Relación: Empresa tiene muchos Doctores
+    public function doctores()
+    {
+        return $this->hasMany(Doctor::class, 'id_empresa', 'id_empresa');
+    }
 }

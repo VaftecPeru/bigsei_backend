@@ -115,16 +115,13 @@ use App\Http\Controllers\Web\MiMembresiaController as WebMiMembresiaController;
 use App\Http\Controllers\Web\MiMatriculaController as WebMiMatriculaController;
 use App\Http\Controllers\Web\ClienteController as ClienteController;
 
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\Api\PacienteController;
+
 
 //RUTAS
 
 Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleMW:superadministrador']], function () {
-    //membresias
-    Route::get('/membresias/tipo/{id}', [MembresiaTipoController::class, 'show']);
-    Route::get('/membresias/tipo', [MembresiaTipoController::class, 'activos']);
-    Route::post('/membresias/tipo', [MembresiaTipoController::class, 'store']); // <-- crear nuevo
-
-
     Route::get('estudiantes', [SuperAdminEstudianteController::class, 'index']);
     Route::get('estudiantes/{id_estudiante}', [SuperAdminEstudianteController::class, 'show']);
     Route::post('estudiantes', [SuperAdminEstudianteController::class, 'store']);
@@ -596,6 +593,13 @@ Route::group(['prefix' => 'dashboard'], function () {
     //TOPICO MEDICO:
     Route::get('topico/cantidad-paciente', [SetupDashboardController::class, 'getCantidadPaciente']);
     Route::get('topico/cantidad-doctor', [SetupDashboardController::class, 'getCantidadDoctor']);
+    Route::apiResource('pacientes', PacienteController::class);
+
+    // CRUD de Doctor
+    Route::get('doctores', [DoctorController::class, 'index']);      // Listar
+    Route::post('doctores', [DoctorController::class, 'store']);     // Crear
+    Route::put('doctores/{id}', [DoctorController::class, 'update']); // Actualizar
+    Route::delete('doctores/{id}', [DoctorController::class, 'destroy']); // Eliminar
 });
 
 Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], function () {
@@ -675,7 +679,7 @@ Route::group(['prefix' => 'web'], function () {
     Route::patch('licencias/{id}/toggle', [WebLicenciaController::class, 'toggle']);
     // Renovar licencia
     Route::patch('licencias/{id}/renew', [WebLicenciaController::class, 'renew']);
-    // Crear un nuevo tipo de licencia
+    // Crear un nuevo tipo de licencia  
     Route::post('licencias/tipo', [WebLicenciaController::class, 'storeTipo']);
     // Listar licencias
     Route::get('licencias', [WebLicenciaController::class, 'index']);
