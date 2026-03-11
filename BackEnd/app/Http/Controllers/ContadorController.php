@@ -74,14 +74,15 @@ class ContadorController extends Controller
 
         // Obtener los resultados
         $pagos = $query->get()->map(function ($pago) {
+
             return [
-                'estudiante_nombre' => $pago->usuario->nombre,
-                'nivel_nombre' => $pago->grado->nivel->nombre ?? null,
-                'grado_nombre' => $pago->grado->nombre ?? null,
+                'estudiante_nombre' => optional($pago->usuario)->nombre,
+                'nivel_nombre' => optional(optional($pago->grado)->nivel)->nombre,
+                'grado_nombre' => optional($pago->grado)->nombre,
                 'tipo' => $pago->descripcion,
-                'monto' => $pago->importe,
+                'total' => $pago->total,
                 'fecha' => $pago->fechaPago,
-                'pago_estado' => $pago->total > 0 ? 'Pagado' : 'Pendiente',
+                'pago_estado' => 'Pagado'
             ];
         });
 
@@ -117,7 +118,6 @@ class ContadorController extends Controller
             ->select('descripcion', 'importe', 'fecha_a_pagar', 'estado', 'observacion')
             ->get();
 
-        // Si el cliente acepta PDF (puedes cambiar esta condición según tus necesidades)
         if ($request->wantsJson()) {
             return response()->json([
                 'data' => $deudas,
@@ -129,7 +129,6 @@ class ContadorController extends Controller
                 'textoBuscar' => $textoBuscar
             ]);
 
-            // Descargar el PDF con un nombre específico
             return $pdf->download('deudas-pendientes-' . $idAnho . '.pdf');
         }
     }

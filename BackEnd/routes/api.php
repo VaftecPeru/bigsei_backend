@@ -11,6 +11,7 @@ use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\ReporteEstudiantesController;
+use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ContadorController;
 use App\Http\Controllers\BibliotecaController;
 
@@ -926,6 +927,32 @@ Route::middleware(['auth.jwt', 'checkRoleMW:admin'])->group(function () {
 
     // RUTA PARA QUE SOLO LOS USUARIOS CON ROL ADMIN AGREGEN CICLOS
     Route::post('agregarCiclo', [AdminController::class, 'agregarCiclo']);
+});
+
+//================================================================================================
+// RUTAS PARA GASTOS 
+Route::prefix('gastos')->group(function () {
+
+    // Obtener todos los gastos
+    Route::get('/', [GastoController::class, 'index']);
+
+    // Obtener un gasto por ID
+    Route::get('{id_gasto}', [GastoController::class, 'show']);
+
+    // Crear un gasto
+    Route::post('/', [GastoController::class, 'store']);
+
+    // Actualizar un gasto
+    Route::put('{id_gasto}', [GastoController::class, 'update']);
+
+    // Eliminar un gasto
+    Route::delete('{id_gasto}', [GastoController::class, 'destroy']);
+
+    // Reporte de gastos por rango de fechas
+    Route::get('reporte/por-fecha', [GastoController::class, 'reportePorFecha']);
+
+    // Descargar PDF de gastos
+    Route::get('reporte/pdf', [GastoController::class, 'descargarPdfGastos']);
 });
 
 
