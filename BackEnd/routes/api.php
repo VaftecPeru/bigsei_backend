@@ -79,6 +79,8 @@ use App\Http\Controllers\Estudiante\ForoEstudianteController as EstudianteForoCo
 use App\Http\Controllers\Estudiante\ListaDeseosController as EstudianteListaDeseosController;
 use App\Http\Controllers\Padre\PadreController;
 use App\Http\Controllers\Padre\MensajeriaDocenteController as PadreMensajeriaController;
+use App\Http\Controllers\Vendedor\VendedorRolController;
+use App\Http\Controllers\Tutor\TutorController;
 use App\Http\Controllers\Setup\ArchivoController as SetupArchivoController;
 use App\Http\Controllers\Setup\TipoDocumentoController as SetupTipoDocumentoController;
 use App\Http\Controllers\Setup\TipoModalidadestudioController as SetupTipoModalidadestudioController;
@@ -508,12 +510,35 @@ Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], f
     Route::put('mensajes/{id}/leer', [PadreMensajeriaController::class, 'marcarLeido']);
 });
 Route::group(['prefix' => 'tutor', 'middleware' => ['CheckUserRoleMW:tutor']], function () {
-    // Rutas específicas para el rol Tutor
-    // TODO: Implementar endpoints según necesidades del rol
+    // Dashboard
+    Route::get('dashboard', [TutorController::class, 'dashboard']);
+    // Mis estudiantes
+    Route::get('mis-estudiantes', [TutorController::class, 'misEstudiantes']);
+    // Agenda de sesiones
+    Route::get('sesiones', [TutorController::class, 'agendaSesiones']);
+    Route::post('sesiones', [TutorController::class, 'storeSesion']);
+    Route::put('sesiones/{id}', [TutorController::class, 'updateSesion']);
+    // Observaciones
+    Route::get('observaciones', [TutorController::class, 'observaciones']);
+    Route::post('observaciones', [TutorController::class, 'storeObservacion']);
+    // Alertas de riesgo
+    Route::get('alertas-riesgo', [TutorController::class, 'alertasRiesgo']);
 });
 Route::group(['prefix' => 'vendedor', 'middleware' => ['CheckUserRoleMW:vendedor']], function () {
-    // Rutas específicas para el rol Vendedor
-    // TODO: Implementar endpoints según necesidades del rol
+    // Dashboard
+    Route::get('dashboard', [VendedorRolController::class, 'dashboard']);
+    // Mis clientes
+    Route::get('mis-clientes', [VendedorRolController::class, 'misClientes']);
+    // Suscripciones
+    Route::get('mis-suscripciones', [VendedorRolController::class, 'misSuscripciones']);
+    // Registrar empresa con licencia
+    Route::post('registrar-empresa', [VendedorRolController::class, 'registrarEmpresa']);
+    // Renovaciones
+    Route::get('renovaciones', [VendedorRolController::class, 'renovaciones']);
+    // Comisiones
+    Route::get('comisiones', [VendedorRolController::class, 'comisiones']);
+    // Estadísticas de ventas
+    Route::get('estadisticas-ventas', [VendedorRolController::class, 'estadisticasVentas']);
 });
 Route::group(['prefix' => 'bibliotecario', 'middleware' => ['CheckUserRoleMW:bibliotecario']], function () {
     // Rutas específicas para el rol Bibliotecario
