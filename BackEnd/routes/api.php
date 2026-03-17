@@ -14,6 +14,7 @@ use App\Http\Controllers\ReporteEstudiantesController;
 use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ContadorController;
 use App\Http\Controllers\BibliotecaController;
+use App\Http\Controllers\DeudaController;
 
 use App\Http\Controllers\Superadministrador\EstudianteController as SuperAdminEstudianteController;
 use App\Http\Controllers\Superadministrador\DocenteController as SuperAdminDocenteController;
@@ -525,6 +526,12 @@ Route::group(['prefix' => 'topicomedico', 'middleware' => ['CheckUserRoleMW:topi
 Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador']], function () {
     // Rutas específicas para el rol Contador
     // TODO: Implementar endpoints según necesidades del rol
+    Route::get('/deudas', [DeudaController::class, 'ListarDeuda']);
+    Route::get('usuarios', [ContadorController::class, 'listarUsuarios']);
+    Route::post('/deudas', [DeudaController::class, 'RegistrarDeuda']);
+    Route::get('/deudas/{id}', [DeudaController::class, 'MostrarDeuda']);
+    Route::put('/deudas/{id}', [DeudaController::class, 'ActualizarDeuda']);
+    Route::delete('/deudas/{id}', [DeudaController::class, 'EliminarDeuda']);
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
@@ -765,8 +772,6 @@ Route::get('matricula/reporte_asistencia_pai', [MatriculaController::class, 'obt
 
 // RUTA PARA EL REPORTE DE ASISTENCIA POR CURSO Y DOCENTE
 Route::get('matricula/reporte_asistencia_curso_docente', [DocenteController::class, 'obtenerReporteAsistenciaCursoDocente']);
-
-
 
 //RUTA PARA LISTAR LOS CURSO CON CICLO Y REPITENCIAS EN MATRICULA ESTUDIANTE NUEVO
 Route::get('/listar-cursos-matricula', [MatriculaController::class, 'listarCursosMatricula']);
@@ -1017,4 +1022,3 @@ Route::middleware(['CheckUserMW:user'])->group(function () {
     Route::post('mi-membresia/{id}/cancelar', [MembresiaGestionController::class, 'cancelar']);
     Route::post('mi-membresia/{id}/cambiar-plan', [MembresiaGestionController::class, 'cambiarPlan']);
 });
-

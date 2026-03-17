@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Movimiento;
 use App\Models\Pago;
 use Barryvdh\DomPDF\PDF;
+use App\Models\Usuario;
 use App\Models\Deuda;
 
 class ContadorController extends Controller
@@ -14,7 +15,7 @@ class ContadorController extends Controller
     {
         $validated = $request->validate([
             'id_anho' => 'required|integer',
-            'tipo' => 'required|string|in:I,E', // "I" para ingresos, "E" para egresos
+            'tipo' => 'required|string|in:I,E',
         ]);
 
         try {
@@ -32,16 +33,14 @@ class ContadorController extends Controller
                     'rol_nombre',
                     'descripcion'
                 )
-                ->orderBy('fecha', 'asc') // Ordenar por fecha
+                ->orderBy('fecha', 'asc') 
                 ->get();
 
-            // Retornar la respuesta en formato JSON
             return response()->json([
                 'success' => true,
                 'data' => $movimientos,
             ], 200);
         } catch (\Exception $e) {
-            // Manejo de errores y devolver una respuesta con el error
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el reporte.',
@@ -49,30 +48,48 @@ class ContadorController extends Controller
             ], 500);
         }
     }
+
+    public function listarUsuarios()
+    {
+        try {
+            $usuarios = Usuario::select(
+                'id_usuario',
+                'nombres',
+                'apellidoPaterno',
+                'apellidoMaterno',
+                'correo'
+            )
+            ->where('estado', 1)
+            ->get();
+
+            return response()->json($usuarios);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudieron obtener los usuarios',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function obtenerPagos(Request $request)
     {
-        // Validar parámetros de entrada
         $request->validate([
             'id_anho' => 'required|integer',
             'texto_buscar' => 'nullable|string|max:255',
         ]);
 
-        // Obtener parámetros de entrada
         $id_anho = $request->input('id_anho');
         $texto_buscar = $request->input('texto_buscar');
 
-        // Construir la consulta
         $query = Pago::with(['usuario', 'grado.nivel'])
-            ->whereYear('fechaPago', $id_anho); // Filtrar por año de pago
+            ->whereYear('fechaPago', $id_anho); 
 
-        // Aplicar filtro de búsqueda si se proporciona
         if (!empty($texto_buscar)) {
             $query->whereHas('usuario', function ($q) use ($texto_buscar) {
                 $q->where('nombre', 'like', '%' . $texto_buscar . '%');
             });
         }
 
-        // Obtener los resultados
         $pagos = $query->get()->map(function ($pago) {
 
             return [
@@ -86,13 +103,11 @@ class ContadorController extends Controller
             ];
         });
 
-        // Devolver la respuesta en formato JSON
         return response()->json([
             'data' => $pagos,
         ]);
     }
 
-    // Método para obtener deudas pendientes
     public function obtenerDeudasPendientes(Request $request)
     {
         $request->validate([
@@ -103,7 +118,6 @@ class ContadorController extends Controller
         $idAnho = $request->input('id_anho');
         $textoBuscar = $request->input('texto_buscar');
 
-        // Filtrar las deudas pendientes
         $deudas = Deuda::where('estado', 'pendiente')
             ->whereYear('fecha_a_pagar', $idAnho)
             ->when($textoBuscar, function ($query, $textoBuscar) {

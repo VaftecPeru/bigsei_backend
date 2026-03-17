@@ -23,7 +23,7 @@ class Deuda extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'idUsuario');
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'id_usuario');
     }
 
 }
