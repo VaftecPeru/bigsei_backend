@@ -92,6 +92,26 @@ class DeudaController extends Controller
         ]);
     }
 
+    //Marcar deuda como pagada
+    public function marcarPagada($id)
+    {
+        $deuda = Deuda::find($id);
+
+        if (!$deuda) {
+            return response()->json([
+                "message" => "Deuda no encontrada"
+            ], 404);
+        }
+
+        $deuda->estado ="Pagado";
+        $deuda->save();
+
+        return response()->json([
+            "message" => "Deuda marcada como pagada",
+            "data" => $deuda
+        ]);
+    }
+
     //Eliminar deduda
     public function EliminarDeuda($id)
     {

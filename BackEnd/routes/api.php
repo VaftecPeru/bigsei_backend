@@ -557,6 +557,7 @@ Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador
     Route::get('/deudas/{id}', [DeudaController::class, 'MostrarDeuda']);
     Route::put('/deudas/{id}', [DeudaController::class, 'ActualizarDeuda']);
     Route::delete('/deudas/{id}', [DeudaController::class, 'EliminarDeuda']);
+    Route::put('/deudas/{id}/pagar', [DeudaController::class, 'marcarPagada']);
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
