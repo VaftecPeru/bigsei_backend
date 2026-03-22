@@ -24,7 +24,7 @@ class CrearTablaDeudas extends Migration
             $table->timestamps(); 
 
             //Relación con la tabla usuarios
-            $table->foreign('idUsuario')->references('idUsuario')->on('usuarios')->onDelete('cascade');
+            $table->foreign('idUsuario')->references('id_usuario')->on('usuario')->onDelete('cascade');
         });
     }
 

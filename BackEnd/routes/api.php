@@ -11,8 +11,10 @@ use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\ReporteEstudiantesController;
+use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ContadorController;
 use App\Http\Controllers\BibliotecaController;
+use App\Http\Controllers\DeudaController;
 
 use App\Http\Controllers\Superadministrador\EstudianteController as SuperAdminEstudianteController;
 use App\Http\Controllers\Superadministrador\DocenteController as SuperAdminDocenteController;
@@ -77,6 +79,8 @@ use App\Http\Controllers\Estudiante\ForoEstudianteController as EstudianteForoCo
 use App\Http\Controllers\Estudiante\ListaDeseosController as EstudianteListaDeseosController;
 use App\Http\Controllers\Padre\PadreController;
 use App\Http\Controllers\Padre\MensajeriaDocenteController as PadreMensajeriaController;
+use App\Http\Controllers\Vendedor\VendedorRolController;
+use App\Http\Controllers\Tutor\TutorController;
 use App\Http\Controllers\Setup\ArchivoController as SetupArchivoController;
 use App\Http\Controllers\Setup\TipoDocumentoController as SetupTipoDocumentoController;
 use App\Http\Controllers\Setup\TipoModalidadestudioController as SetupTipoModalidadestudioController;
@@ -507,12 +511,35 @@ Route::group(['prefix' => 'padre', 'middleware' => ['CheckUserRoleMW:padre']], f
     Route::put('mensajes/{id}/leer', [PadreMensajeriaController::class, 'marcarLeido']);
 });
 Route::group(['prefix' => 'tutor', 'middleware' => ['CheckUserRoleMW:tutor']], function () {
-    // Rutas específicas para el rol Tutor
-    // TODO: Implementar endpoints según necesidades del rol
+    // Dashboard
+    Route::get('dashboard', [TutorController::class, 'dashboard']);
+    // Mis estudiantes
+    Route::get('mis-estudiantes', [TutorController::class, 'misEstudiantes']);
+    // Agenda de sesiones
+    Route::get('sesiones', [TutorController::class, 'agendaSesiones']);
+    Route::post('sesiones', [TutorController::class, 'storeSesion']);
+    Route::put('sesiones/{id}', [TutorController::class, 'updateSesion']);
+    // Observaciones
+    Route::get('observaciones', [TutorController::class, 'observaciones']);
+    Route::post('observaciones', [TutorController::class, 'storeObservacion']);
+    // Alertas de riesgo
+    Route::get('alertas-riesgo', [TutorController::class, 'alertasRiesgo']);
 });
 Route::group(['prefix' => 'vendedor', 'middleware' => ['CheckUserRoleMW:vendedor']], function () {
-    // Rutas específicas para el rol Vendedor
-    // TODO: Implementar endpoints según necesidades del rol
+    // Dashboard
+    Route::get('dashboard', [VendedorRolController::class, 'dashboard']);
+    // Mis clientes
+    Route::get('mis-clientes', [VendedorRolController::class, 'misClientes']);
+    // Suscripciones
+    Route::get('mis-suscripciones', [VendedorRolController::class, 'misSuscripciones']);
+    // Registrar empresa con licencia
+    Route::post('registrar-empresa', [VendedorRolController::class, 'registrarEmpresa']);
+    // Renovaciones
+    Route::get('renovaciones', [VendedorRolController::class, 'renovaciones']);
+    // Comisiones
+    Route::get('comisiones', [VendedorRolController::class, 'comisiones']);
+    // Estadísticas de ventas
+    Route::get('estadisticas-ventas', [VendedorRolController::class, 'estadisticasVentas']);
 });
 Route::group(['prefix' => 'bibliotecario', 'middleware' => ['CheckUserRoleMW:bibliotecario']], function () {
     // Rutas específicas para el rol Bibliotecario
@@ -525,6 +552,13 @@ Route::group(['prefix' => 'topicomedico', 'middleware' => ['CheckUserRoleMW:topi
 Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador']], function () {
     // Rutas específicas para el rol Contador
     // TODO: Implementar endpoints según necesidades del rol
+    Route::get('/deudas', [DeudaController::class, 'ListarDeuda']);
+    Route::get('usuarios', [ContadorController::class, 'listarUsuarios']);
+    Route::post('/deudas', [DeudaController::class, 'RegistrarDeuda']);
+    Route::get('/deudas/{id}', [DeudaController::class, 'MostrarDeuda']);
+    Route::put('/deudas/{id}', [DeudaController::class, 'ActualizarDeuda']);
+    Route::delete('/deudas/{id}', [DeudaController::class, 'EliminarDeuda']);
+    Route::put('/deudas/{id}/pagar', [DeudaController::class, 'marcarPagada']);
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
@@ -783,8 +817,6 @@ Route::get('matricula/reporte_asistencia_pai', [MatriculaController::class, 'obt
 // RUTA PARA EL REPORTE DE ASISTENCIA POR CURSO Y DOCENTE
 Route::get('matricula/reporte_asistencia_curso_docente', [DocenteController::class, 'obtenerReporteAsistenciaCursoDocente']);
 
-
-
 //RUTA PARA LISTAR LOS CURSO CON CICLO Y REPITENCIAS EN MATRICULA ESTUDIANTE NUEVO
 Route::get('/listar-cursos-matricula', [MatriculaController::class, 'listarCursosMatricula']);
 
@@ -946,6 +978,32 @@ Route::middleware(['auth.jwt', 'checkRoleMW:admin'])->group(function () {
     Route::post('agregarCiclo', [AdminController::class, 'agregarCiclo']);
 });
 
+//================================================================================================
+// RUTAS PARA GASTOS 
+Route::prefix('gastos')->group(function () {
+
+    // Obtener todos los gastos
+    Route::get('/', [GastoController::class, 'index']);
+
+    // Obtener un gasto por ID
+    Route::get('{id_gasto}', [GastoController::class, 'show']);
+
+    // Crear un gasto
+    Route::post('/', [GastoController::class, 'store']);
+
+    // Actualizar un gasto
+    Route::put('{id_gasto}', [GastoController::class, 'update']);
+
+    // Eliminar un gasto
+    Route::delete('{id_gasto}', [GastoController::class, 'destroy']);
+
+    // Reporte de gastos por rango de fechas
+    Route::get('reporte/por-fecha', [GastoController::class, 'reportePorFecha']);
+
+    // Descargar PDF de gastos
+    Route::get('reporte/pdf', [GastoController::class, 'descargarPdfGastos']);
+});
+
 
 // RUTAS PARA ESTUDIANTE VALIDADA POR MIDDLEWARE AUTH (PARA TOKEN JWT) Y CHECKROLE (PARA VALIDAR ROL DEL TOKEN)
 Route::middleware(['auth.jwt', 'checkRoleMW:estudiante'])->group(function () {
@@ -1008,4 +1066,3 @@ Route::middleware(['CheckUserMW:user'])->group(function () {
     Route::post('mi-membresia/{id}/cancelar', [MembresiaGestionController::class, 'cancelar']);
     Route::post('mi-membresia/{id}/cambiar-plan', [MembresiaGestionController::class, 'cambiarPlan']);
 });
-
