@@ -90,7 +90,7 @@ class DoctorController extends Controller
 
             return response()->json(['message' => 'Doctor eliminado']);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error al eliminar el doctor: ' . $e->getMessage()], 500);
+            return response()->json(['error' =>     'Error al eliminar el doctor: ' . $e->getMessage()], 500);
         }
     }
 
