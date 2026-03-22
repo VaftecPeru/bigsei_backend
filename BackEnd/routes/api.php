@@ -117,7 +117,8 @@ use App\Http\Controllers\Web\ClienteController as ClienteController;
 
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\Api\PacienteController;
-
+use App\Http\Controllers\CitaController;
+use App\Http\Controllers\EspecialidadController;
 
 //RUTAS
 
@@ -600,6 +601,23 @@ Route::group(['prefix' => 'dashboard'], function () {
     Route::post('doctores', [DoctorController::class, 'store']);     // Crear
     Route::put('doctores/{id}', [DoctorController::class, 'update']); // Actualizar
     Route::delete('doctores/{id}', [DoctorController::class, 'destroy']); // Eliminar
+
+    // Citas
+    Route::get('/citas', [CitaController::class, 'index']); // para listar todas
+    Route::post('/citas', [CitaController::class, 'store']); //Crear citas
+    Route::put('/citas/{id}', [CitaController::class, 'update']); // Actualizar cita
+    Route::delete('/citas/{id}', [CitaController::class, 'destroy']); // Eliminar cita
+
+    // Especialidades
+    Route::apiResource('especialidades', EspecialidadController::class);
+
+     // Rutas para Pacientes
+    Route::get('pacientes', [PacienteController::class, 'index']);  // Para listar pacientes
+    Route::post('pacientes', [PacienteController::class, 'store']); // Para crear paciente
+    Route::get('pacientes/{id}', [PacienteController::class, 'show']); // Para mostrar un paciente
+    Route::put('pacientes/{id}', [PacienteController::class, 'update']); // Para actualizar paciente
+    Route::delete('pacientes/{id}', [PacienteController::class, 'destroy']); // Para eliminar paciente
+
 });
 
 Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], function () {

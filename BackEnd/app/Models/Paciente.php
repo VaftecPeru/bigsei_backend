@@ -26,6 +26,8 @@ class Paciente extends Model
 
     public function citas()
     {
-        return $this->hasMany(CitaMedica::class, 'id_paciente');
+        return $this->hasMany(Cita::class, 'id_paciente', 'id_paciente');
     }
+
+    
 }
