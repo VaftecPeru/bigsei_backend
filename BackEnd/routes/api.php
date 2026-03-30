@@ -559,6 +559,7 @@ Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador
     Route::put('/deudas/{id}', [DeudaController::class, 'ActualizarDeuda']);
     Route::delete('/deudas/{id}', [DeudaController::class, 'EliminarDeuda']);
     Route::put('/deudas/{id}/pagar', [DeudaController::class, 'marcarPagada']);
+    //Route::get('export-tabla', [GastoController::class, 'exportExcel']);
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
@@ -985,6 +986,8 @@ Route::prefix('gastos')->group(function () {
     // Obtener todos los gastos
     Route::get('/', [GastoController::class, 'index']);
 
+    Route::get('export-excel', [GastoController::class, 'exportExcel']);
+
     // Obtener un gasto por ID
     Route::get('{id_gasto}', [GastoController::class, 'show']);
 
@@ -1002,6 +1005,7 @@ Route::prefix('gastos')->group(function () {
 
     // Descargar PDF de gastos
     Route::get('reporte/pdf', [GastoController::class, 'descargarPdfGastos']);
+
 });
 
 

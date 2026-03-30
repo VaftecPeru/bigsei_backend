@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Gasto;
 use Barryvdh\DomPDF\PDF;
+use App\Exports\GastosExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GastoController extends Controller
 {
@@ -50,7 +52,7 @@ class GastoController extends Controller
         $request->validate([
             'nro_operacion' => 'required|string|max:50',
             'nombre_destinatario' => 'required|string|max:255',
-            'id_usuario' => 'required|integer|exists:usuarios,id',
+            'id_usuario' => 'required|integer|exists:usuarios,id_usuario',
             'monto' => 'required|numeric|min:0',
             'fecha_registro' => 'required|date',
             'fecha_pago' => 'nullable|date',
@@ -157,5 +159,17 @@ class GastoController extends Controller
         ]);
 
         return $pdf->download('gastos-' . $fechaInicio . '-a-' . $fechaFin . '.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
+
+        return Excel::download(
+            new GastosExport($fechaInicio, $fechaFin),
+            'gastos.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX 
+        );
     }
 }
