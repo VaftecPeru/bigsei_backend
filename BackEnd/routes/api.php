@@ -124,6 +124,10 @@ use App\Http\Controllers\Api\PacienteController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\EspecialidadController;
 
+use App\Http\Controllers\DiagnosticoController;
+use App\Http\Controllers\RecetaController;
+
+
 //RUTAS
 
 Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleMW:superadministrador']], function () {
@@ -652,6 +656,14 @@ Route::group(['prefix' => 'dashboard'], function () {
     Route::put('pacientes/{id}', [PacienteController::class, 'update']); // Para actualizar paciente
     Route::delete('pacientes/{id}', [PacienteController::class, 'destroy']); // Para eliminar paciente
 
+    // Diagnóstico Medico
+    Route::post('citas/{id_cita}/diagnostico', [DiagnosticoController::class, 'store']);
+    Route::get('citas/{id_cita}/diagnostico', [DiagnosticoController::class, 'show']);
+    Route::get('diagnosticos', [DiagnosticoController::class, 'index']);
+    
+    // Receta Medica
+    Route::post('citas/{id_cita}/receta', [RecetaController::class, 'store']);
+    Route::get('citas/{id_cita}/receta', [RecetaController::class, 'show']);
 });
 
 Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], function () {

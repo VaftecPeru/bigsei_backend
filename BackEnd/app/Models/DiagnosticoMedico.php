@@ -3,26 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DiagnosticoMedico extends Model
 {
-    protected $table = 'diagnostico_medico';
+    use HasFactory;
+
+    protected $table = 'diagnosticos_medicos';
     protected $primaryKey = 'id_diagnostico';
+    public $timestamps = true;
 
     protected $fillable = [
         'id_cita',
         'descripcion',
         'observaciones',
-        'fecha',
+        'fecha'
     ];
 
+    // Relación con la cita
     public function cita()
     {
-        return $this->belongsTo(CitaMedica::class, 'id_cita');
+        return $this->belongsTo(Cita::class, 'id_cita', 'id_cita');
     }
 
-    public function receta()
+    // Relación con recetas
+    public function recetas()
     {
-        return $this->hasOne(RecetaMedica::class, 'id_diagnostico');
+        return $this->hasMany(RecetaMedica::class, 'id_diagnostico', 'id_diagnostico');
     }
 }
