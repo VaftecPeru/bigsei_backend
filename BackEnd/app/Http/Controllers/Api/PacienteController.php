@@ -15,52 +15,88 @@ class PacienteController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'nombres' => 'required|string|max:100',
-            'apellidos' => 'required|string|max:100',
-            'fecha_nacimiento' => 'nullable|date',
-            'sexo' => 'nullable|in:M,F,Otro',
-            'telefono' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:100',
-            'direccion' => 'nullable|string|max:150',
-            'tipo_sangre' => 'nullable|string|max:5',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'dni' => 'required|digits:8|unique:paciente,dni',
+                'nombres' => 'required|string|max:100',
+                'apellidos' => 'required|string|max:100',
+                'fecha_nacimiento' => 'nullable|date',
+                'sexo' => 'nullable|in:M,F,Otro',
+                'telefono' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:100',
+                'direccion' => 'nullable|string|max:150',
+                'tipo_sangre' => 'nullable|string|max:5',
+            ]);
 
-        $paciente = Paciente::create($validatedData);
+            $paciente = Paciente::create($validatedData);
 
-        return response()->json($paciente, 201);
+            return response()->json($paciente, 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear paciente',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function show($id)
     {
-        $paciente = Paciente::findOrFail($id);
-        return response()->json($paciente);
+        try {
+            return response()->json(
+                Paciente::findOrFail($id)
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Paciente no encontrado',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $paciente = Paciente::findOrFail($id);
+        try {
+            $paciente = Paciente::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'nombres' => 'required|string|max:100',
-            'apellidos' => 'required|string|max:100',
-            'fecha_nacimiento' => 'nullable|date',
-            'sexo' => 'nullable|in:M,F,Otro',
-            'telefono' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:100',
-            'direccion' => 'nullable|string|max:150',
-            'tipo_sangre' => 'nullable|string|max:5',
-        ]);
+            $validatedData = $request->validate([
+                'dni' => 'required|digits:8|unique:paciente,dni,' . $paciente->id_paciente . ',id_paciente',
+                'nombres' => 'required|string|max:100',
+                'apellidos' => 'required|string|max:100',
+                'fecha_nacimiento' => 'nullable|date',
+                'sexo' => 'nullable|in:M,F,Otro',
+                'telefono' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:100',
+                'direccion' => 'nullable|string|max:150',
+                'tipo_sangre' => 'nullable|string|max:5',
+            ]);
 
-        $paciente->update($validatedData);
+            $paciente->update($validatedData);
 
-        return response()->json($paciente);
+            return response()->json($paciente);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar paciente',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $paciente = Paciente::findOrFail($id);
-        $paciente->delete();
-        return response()->json(['message' => 'Paciente eliminado'], 204);
+        try {
+            $paciente = Paciente::findOrFail($id);
+            $paciente->delete();
+
+            return response()->json([
+                'message' => 'Paciente eliminado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al eliminar paciente',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

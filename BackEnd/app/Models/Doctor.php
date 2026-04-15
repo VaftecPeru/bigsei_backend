@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Empresa;
+use App\Models\Especialidad;
 
 class Doctor extends Model
 {
@@ -11,6 +13,7 @@ class Doctor extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'dni',
         'nombre',
         'apellido',
         'telefono',
@@ -19,6 +22,11 @@ class Doctor extends Model
         'estado',
         'id_empresa',
         'id_especialidad'
+    ];
+
+    // valor por defecto si no se envía estado
+    protected $attributes = [
+        'estado' => 'Activo',
     ];
 
     public function empresa()

@@ -3,20 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RecetaMedica extends Model
 {
-    protected $table = 'receta_medica';
+    use HasFactory;
+
+    protected $table = 'recetas_medicas';
     protected $primaryKey = 'id_receta';
+    public $timestamps = true;
 
     protected $fillable = [
-        'id_diagnostico',
-        'medicamento',
-        'indicaciones',
+        'id_cita',
+        'indicaciones'
     ];
 
-    public function diagnostico()
+    // Relación con la cita
+    public function cita()
     {
-        return $this->belongsTo(DiagnosticoMedico::class, 'id_diagnostico');
+        return $this->belongsTo(Cita::class, 'id_cita', 'id_cita');
     }
 }

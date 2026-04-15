@@ -20,24 +20,24 @@ class CitaController extends Controller
                     'id_paciente' => $cita->id_paciente,
                     'id_doctor' => $cita->id_doctor,
 
-                    'paciente_nombre' => $cita->paciente 
-                        ? $cita->paciente->nombres . ' ' . $cita->paciente->apellidos 
+                    'paciente_nombre' => $cita->paciente
+                        ? $cita->paciente->nombres . ' ' . $cita->paciente->apellidos
                         : null,
 
-                    'doctor_nombre' => $cita->doctor 
-                        ? $cita->doctor->nombre . ' ' . $cita->doctor->apellido 
+                    'doctor_nombre' => $cita->doctor
+                        ? $cita->doctor->nombre . ' ' . $cita->doctor->apellido
                         : null,
 
-                    'fecha' => $cita->fecha 
-                        ? Carbon::parse($cita->fecha)->format('d/m/Y') 
+                    'fecha' => $cita->fecha
+                        ? Carbon::parse($cita->fecha)->format('d/m/Y')
                         : null,
 
-                    'hora_inicio' => $cita->hora_inicio 
-                        ? substr($cita->hora_inicio, 0, 5) 
+                    'hora_inicio' => $cita->hora_inicio
+                        ? substr($cita->hora_inicio, 0, 5)
                         : null,
 
-                    'hora_fin' => $cita->hora_fin 
-                        ? substr($cita->hora_fin, 0, 5) 
+                    'hora_fin' => $cita->hora_fin
+                        ? substr($cita->hora_fin, 0, 5)
                         : null,
 
                     'motivo' => $cita->motivo,
@@ -65,11 +65,10 @@ class CitaController extends Controller
                 'id_doctor' => 'required|integer',
                 'fecha' => 'required|date',
                 'hora_inicio' => 'required|date_format:H:i',
-                'motivo' => 'nullable'
+                'motivo' => 'nullable|string'
             ]);
 
-            // Convertir correctamente la hora
-            $horaInicio = \Carbon\Carbon::createFromFormat('H:i', $request->hora_inicio);
+            $horaInicio = Carbon::createFromFormat('H:i', $request->hora_inicio);
             $horaFin = $horaInicio->copy()->addMinutes(30);
 
             $cita = Cita::create([
@@ -104,10 +103,10 @@ class CitaController extends Controller
                 'id_doctor' => 'required|integer',
                 'fecha' => 'required|date',
                 'hora_inicio' => 'required|date_format:H:i',
-                'motivo' => 'nullable'
+                'motivo' => 'nullable|string'
             ]);
 
-            $horaInicio = \Carbon\Carbon::createFromFormat('H:i', $request->hora_inicio);
+            $horaInicio = Carbon::createFromFormat('H:i', $request->hora_inicio);
             $horaFin = $horaInicio->copy()->addMinutes(30);
 
             $cita->update([
@@ -116,7 +115,7 @@ class CitaController extends Controller
                 'fecha' => $request->fecha,
                 'hora_inicio' => $horaInicio->format('H:i:s'),
                 'hora_fin' => $horaFin->format('H:i:s'),
-                'motivo' => $request->motivo,
+                'motivo' => $request->motivo
             ]);
 
             return response()->json([
@@ -139,7 +138,30 @@ class CitaController extends Controller
             $cita = Cita::findOrFail($id);
             $cita->delete();
 
-            return response()->json(['message' => 'Eliminado correctamente']);
+            return response()->json([
+                'message' => 'Eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // =========================
+    // MARCAR COMO ATENDIDA
+    // =========================
+    public function marcarAtendida($id)
+    {
+        try {
+            $cita = Cita::findOrFail($id);
+            $cita->estado = 'Atendida';
+            $cita->save();
+
+            return response()->json([
+                'message' => 'Cita marcada como atendida'
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([

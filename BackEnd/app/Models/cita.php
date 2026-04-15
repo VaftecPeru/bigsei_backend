@@ -34,4 +34,17 @@ class Cita extends Model
     {
         return $this->belongsTo(Doctor::class, 'id_doctor', 'id_doctor');
     }
+
+    // Diagnóstico de la cita
+    public function diagnosticoMedico()
+    {
+        return $this->hasOne(DiagnosticoMedico::class, 'id_cita', 'id_cita');
+    }
+
+    // Receta de la cita
+    public function recetaMedica()
+    {
+        return $this->hasOne(RecetaMedica::class, 'id_cita', 'id_cita');
+    }
+
 }
