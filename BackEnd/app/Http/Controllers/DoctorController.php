@@ -111,7 +111,6 @@ class DoctorController extends Controller
             return response()->json([
                 'error' => 'Error al eliminar el doctor: ' . $e->getMessage()
             ], 500);
->>>>>>> master
         }
     }
 

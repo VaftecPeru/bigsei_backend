@@ -563,6 +563,7 @@ Route::group(['prefix' => 'contador', 'middleware' => ['CheckUserRoleMW:contador
     Route::put('/deudas/{id}', [DeudaController::class, 'ActualizarDeuda']);
     Route::delete('/deudas/{id}', [DeudaController::class, 'EliminarDeuda']);
     Route::put('/deudas/{id}/pagar', [DeudaController::class, 'marcarPagada']);
+    //Route::get('export-tabla', [GastoController::class, 'exportExcel']);
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
@@ -664,6 +665,11 @@ Route::group(['prefix' => 'dashboard'], function () {
     // Receta Medica
     Route::post('citas/{id_cita}/receta', [RecetaController::class, 'store']);
     Route::get('citas/{id_cita}/receta', [RecetaController::class, 'show']);
+
+    // Contador
+    Route::get('contador/balance-grafico', [SetupDashboardController::class, 'listarMovimientos']);
+    Route::get('contador/lista-movimiento', [SetupDashboardController::class, 'listarMovimientoPorTipo']);
+
 });
 
 Route::group(['prefix' => 'setup', 'middleware' => ['CheckUserMW:setup']], function () {
@@ -902,9 +908,14 @@ Route::get('estudiante/mis-tramites', [EstudianteController::class, 'misTramites
 
 //RUTA PARA OBTENER REPORTE DE INGRESOS Y EGRESOS
 Route::get('contador/reporte/ingresos_egresos', [ContadorController::class, 'reporteIngresosEgresos']);
+Route::get('balance-general', [SetupDashboardController::class, 'listarMovimientos']);
+//Route::get('lista-movimiento', [SetupDashboardController::class, 'listarMovimientoPorTipo']); 
 
 // RUTA PARA OBTENER DEUDAS PENDIENTES DE UN ESTUDIANTE
 Route::get('contador/deudas-pendientes', [ContadorController::class, 'obtenerDeudasPendientes']);
+
+//
+Route::get('contador/reporte-morosidad', [ContadorController::class, 'reporteMorosidad']);
 
 //================================================================================================
 // RUTAS PARA LA BIBLIOTECA
@@ -997,6 +1008,8 @@ Route::prefix('gastos')->group(function () {
     // Obtener todos los gastos
     Route::get('/', [GastoController::class, 'index']);
 
+    Route::get('export-excel', [GastoController::class, 'exportExcel']);
+
     // Obtener un gasto por ID
     Route::get('{id_gasto}', [GastoController::class, 'show']);
 
@@ -1014,6 +1027,7 @@ Route::prefix('gastos')->group(function () {
 
     // Descargar PDF de gastos
     Route::get('reporte/pdf', [GastoController::class, 'descargarPdfGastos']);
+
 });
 
 

@@ -33,7 +33,7 @@ class ContadorController extends Controller
                     'rol_nombre',
                     'descripcion'
                 )
-                ->orderBy('fecha', 'asc') 
+                ->orderBy('fecha', 'asc')
                 ->get();
 
             return response()->json([
@@ -59,8 +59,8 @@ class ContadorController extends Controller
                 'apellidoMaterno',
                 'correo'
             )
-            ->where('estado', 1)
-            ->get();
+                ->where('estado', 1)
+                ->get();
 
             return response()->json($usuarios);
         } catch (\Exception $e) {
@@ -81,22 +81,24 @@ class ContadorController extends Controller
         $id_anho = $request->input('id_anho');
         $texto_buscar = $request->input('texto_buscar');
 
-        $query = Pago::with(['usuario', 'grado.nivel'])
-            ->whereYear('fechaPago', $id_anho); 
+        $query = Pago::with(['usuario', 'metodoPago'])
+            ->whereYear('fechaPago', $id_anho);
 
         if (!empty($texto_buscar)) {
             $query->whereHas('usuario', function ($q) use ($texto_buscar) {
-                $q->where('nombre', 'like', '%' . $texto_buscar . '%');
+                $q->where('nombres', 'like', '%' . $texto_buscar . '%');
             });
         }
 
         $pagos = $query->get()->map(function ($pago) {
-
             return [
-                'estudiante_nombre' => optional($pago->usuario)->nombre,
-                'nivel_nombre' => optional(optional($pago->grado)->nivel)->nombre,
-                'grado_nombre' => optional($pago->grado)->nombre,
+                'estudiante_nombre' => optional($pago->usuario)->nombres
+                    . ' ' . optional($pago->usuario)->apellidoPaterno
+                    . ' ' . optional($pago->usuario)->apellidoMaterno,
                 'tipo' => $pago->descripcion,
+                'metodo_pago' => optional($pago->metodoPago)->nombre ?? 'No especificado',
+                'importe' => $pago->importe,
+                'igv' => $pago->igv,
                 'total' => $pago->total,
                 'fecha' => $pago->fechaPago,
                 'pago_estado' => 'Pagado'
@@ -144,6 +146,47 @@ class ContadorController extends Controller
             ]);
 
             return $pdf->download('deudas-pendientes-' . $idAnho . '.pdf');
+        }
+    }
+
+    public function reporteMorosidad(Request $request)
+    {
+        $request->validate([
+            'id_anho' => 'required|integer',
+        ]);
+
+        $idAnho = $request->input('id_anho');
+
+        try {
+            $morosos = Deuda::with('usuario:id_usuario,nombres,apellidoPaterno,apellidoMaterno')
+                ->where('estado', 'Pendiente')
+                ->whereYear('fecha_a_pagar', $idAnho)
+                ->get()
+                ->filter(fn($d) => $d->usuario !== null)
+                ->groupBy(
+                    fn($item) =>
+                    $item->usuario->nombres . ' ' . $item->usuario->apellidoPaterno . ' ' . $item->usuario->apellidoMaterno
+                )
+                ->map(function ($items, $nombreCompleto) {
+                    return [
+                        'usuario' => $nombreCompleto,
+                        'total_deuda' => $items->sum('importe'),
+                        'cantidad_deudas' => $items->count(),
+                    ];
+                })
+                ->sortByDesc('total_deuda')
+                ->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => $morosos
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar reporte de morosidad',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
