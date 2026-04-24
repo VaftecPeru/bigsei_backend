@@ -20,6 +20,7 @@ class Pago extends Model
         'igv',
         'total',
         'fechaPago',
+        'conciliado',
     ];
 
     // Relación con la tabla Usuario

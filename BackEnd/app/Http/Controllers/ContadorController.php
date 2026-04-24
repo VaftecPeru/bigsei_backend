@@ -8,6 +8,7 @@ use App\Models\Pago;
 use Barryvdh\DomPDF\PDF;
 use App\Models\Usuario;
 use App\Models\Deuda;
+use Illuminate\Support\Facades\DB;
 
 class ContadorController extends Controller
 {
@@ -185,6 +186,50 @@ class ContadorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al generar reporte de morosidad',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function conciliar()
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $pagos = Pago::where('conciliado', 0)->get();
+
+            foreach ($pagos as $pago) {
+
+                $deuda = Deuda::where('idUsuario', $pago->idUsuario)
+                    ->where('estado', 'pendiente')
+                    ->where('importe', $pago->total)
+                    ->first();
+
+                if ($deuda) {
+                    // ✅ marcar deuda como pagada
+                    $deuda->estado = 'Pagado';
+                    $deuda->save();
+
+                    // ✅ marcar pago como conciliado
+                    $pago->conciliado = 1;
+                    $pago->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Conciliación realizada correctamente'
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en conciliación',
                 'error' => $e->getMessage()
             ], 500);
         }

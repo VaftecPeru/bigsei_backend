@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Deuda;
+use App\Models\Pago;
 
 class DeudaController extends Controller
 {
@@ -64,7 +65,6 @@ class DeudaController extends Controller
             }
 
             return response()->json($deuda, 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener la deuda',
@@ -93,8 +93,14 @@ class DeudaController extends Controller
     }
 
     //Marcar deuda como pagada
-    public function marcarPagada($id)
+    public function marcarPagada(Request $request, $id)
     {
+        // Validación
+        $request->validate([
+            'idMetodoPago' => 'required|exists:metodo_pago,idMetodoPago'
+        ]);
+
+        //Buscar Deuda
         $deuda = Deuda::find($id);
 
         if (!$deuda) {
@@ -103,11 +109,38 @@ class DeudaController extends Controller
             ], 404);
         }
 
-        $deuda->estado ="Pagado";
+        //Evitar doble pago
+        if ($deuda->estado === 'pagado') {
+            return response()->json([
+                "message" => "La deuda ya está pagada"
+            ], 400);
+        }
+
+        $importeTotal = $deuda->importe;
+
+        // separar IGV incluido
+        $base = $importeTotal / 1.18;
+        $igv = $importeTotal - $base;
+        $total = $importeTotal;
+
+        // Crear pago
+        Pago::create([
+            'idUsuario' => $deuda->idUsuario,
+            'idMetodoPago' => $request->idMetodoPago,
+            'descripcion' => $deuda->descripcion,
+            'importe' => $base,
+            'igv' => $igv,
+            'total' => $total,
+            'fechaPago' => now(),
+            'conciliado' => 1
+        ]);
+
+        // Actualizar deuda
+        $deuda->estado = "pagado";
         $deuda->save();
 
         return response()->json([
-            "message" => "Deuda marcada como pagada",
+            "message" => "Pago registrado y deuda marcada como pagada",
             "data" => $deuda
         ]);
     }
