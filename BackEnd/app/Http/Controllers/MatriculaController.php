@@ -19,7 +19,7 @@ use App\Models\CursoEstudiantes;
 use App\Models\CursoHorario;
 use App\Models\CursoHorarioEstudiantes;
 use App\Models\Matricula;
-use App\Models\MatriculaCursos;
+use App\Models\MatriculaCurso;
 use App\Models\MatriculaPagos;
 use App\Models\Pago;
 use Barryvdh\DomPDF\PDF;
@@ -428,7 +428,7 @@ class MatriculaController extends Controller
 
         // Registrar los cursos de la matricula
         foreach ($request->cursos as $curso) {
-            $matriculaCurso = MatriculaCursos::create([
+            $matriculaCurso = MatriculaCurso::create([
                 'idMatricula' => $matricula->idMatricula,
                 'idCursoHorario' => $curso['idCursoHorario'],
             ]);
@@ -508,7 +508,7 @@ class MatriculaController extends Controller
         $matricula->save();
 
         // Registramos al estudiante en los cursos
-        $matriculaCursos = MatriculaCursos::where('idMatricula', $idMatricula)->get();
+        $matriculaCursos = MatriculaCurso::where('idMatricula', $idMatricula)->get();
 
         foreach ($matriculaCursos as $curso) {
 
@@ -579,7 +579,7 @@ class MatriculaController extends Controller
             ->get(['descripcion', 'metodo_pago.nombre as metodoPago', 'importe', 'igv', 'total', 'fechaPago'])
             ->first();
 
-        $cursosMatricula = MatriculaCursos::with(['cursoHorario.cursoTipo', 'cursoHorario.cursoDocentes'])
+        $cursosMatricula = MatriculaCurso::with(['cursoHorario.cursoTipo', 'cursoHorario.cursoDocentes'])
             ->where('idMatricula', $idMatricula)
             ->get()
             ->map(function ($matriculaCurso) {
@@ -618,7 +618,7 @@ class MatriculaController extends Controller
         $idMatricula = $request->input('idMatricula');
 
         // Obtener los cursos matriculados
-        $cursosMatricula = MatriculaCursos::with(['cursoHorario.cursoTipo', 'cursoHorario.cursoDocentes'])
+        $cursosMatricula = MatriculaCurso::with(['cursoHorario.cursoTipo', 'cursoHorario.cursoDocentes'])
             ->where('idMatricula', $idMatricula)
             ->get()
             ->map(function ($matriculaCurso) {

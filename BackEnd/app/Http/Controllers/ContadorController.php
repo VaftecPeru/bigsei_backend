@@ -82,7 +82,7 @@ class ContadorController extends Controller
         $id_anho = $request->input('id_anho');
         $texto_buscar = $request->input('texto_buscar');
 
-        $query = Pago::with(['usuario', 'metodoPago'])
+        $query = Pago::with(['usuario', 'metodoPago', 'factura'])
             ->whereYear('fechaPago', $id_anho);
 
         if (!empty($texto_buscar)) {
@@ -102,7 +102,9 @@ class ContadorController extends Controller
                 'igv' => $pago->igv,
                 'total' => $pago->total,
                 'fecha' => $pago->fechaPago,
-                'pago_estado' => 'Pagado'
+                'factura_id' => optional($pago->factura)->idFactura,
+                'numero_factura' => optional($pago->factura)->numeroFactura,
+                'pago_estado' => $pago->conciliado ? 'Conciliado' : 'Pendiente'
             ];
         });
 
@@ -197,7 +199,7 @@ class ContadorController extends Controller
 
         try {
 
-            $pagos = Pago::where('conciliado', 0)->get();
+            $pagos = Pago::with('factura')->where('conciliado', 0)->get();
 
             foreach ($pagos as $pago) {
 
@@ -207,13 +209,17 @@ class ContadorController extends Controller
                     ->first();
 
                 if ($deuda) {
-                    // ✅ marcar deuda como pagada
                     $deuda->estado = 'Pagado';
                     $deuda->save();
 
-                    // ✅ marcar pago como conciliado
                     $pago->conciliado = 1;
                     $pago->save();
+
+                    // 🧾 FACTURA
+                    if ($pago->factura) {
+                        $pago->factura->estado = 'CONCILIADA';
+                        $pago->factura->save();
+                    }
                 }
             }
 

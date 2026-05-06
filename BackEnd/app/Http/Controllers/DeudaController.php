@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Deuda;
+use App\Models\Factura;
 use App\Models\Pago;
+use Illuminate\Support\Facades\DB;
 
 class DeudaController extends Controller
 {
@@ -95,54 +97,73 @@ class DeudaController extends Controller
     //Marcar deuda como pagada
     public function marcarPagada(Request $request, $id)
     {
-        // Validación
         $request->validate([
             'idMetodoPago' => 'required|exists:metodo_pago,idMetodoPago'
         ]);
 
-        //Buscar Deuda
         $deuda = Deuda::find($id);
 
         if (!$deuda) {
-            return response()->json([
-                "message" => "Deuda no encontrada"
-            ], 404);
+            return response()->json(["message" => "Deuda no encontrada"], 404);
         }
 
-        //Evitar doble pago
         if ($deuda->estado === 'pagado') {
-            return response()->json([
-                "message" => "La deuda ya está pagada"
-            ], 400);
+            return response()->json(["message" => "Ya está pagada"], 400);
         }
 
-        $importeTotal = $deuda->importe;
+        DB::beginTransaction();
 
-        // separar IGV incluido
-        $base = $importeTotal / 1.18;
-        $igv = $importeTotal - $base;
-        $total = $importeTotal;
+        try {
 
-        // Crear pago
-        Pago::create([
-            'idUsuario' => $deuda->idUsuario,
-            'idMetodoPago' => $request->idMetodoPago,
-            'descripcion' => $deuda->descripcion,
-            'importe' => $base,
-            'igv' => $igv,
-            'total' => $total,
-            'fechaPago' => now(),
-            'conciliado' => 1
-        ]);
+            $importeTotal = $deuda->importe;
 
-        // Actualizar deuda
-        $deuda->estado = "pagado";
-        $deuda->save();
+            $base = $importeTotal / 1.18;
+            $igv = $importeTotal - $base;
 
-        return response()->json([
-            "message" => "Pago registrado y deuda marcada como pagada",
-            "data" => $deuda
-        ]);
+            // 1. CREAR PAGO
+            $pago = Pago::create([
+                'idUsuario' => $deuda->idUsuario,
+                'idMetodoPago' => $request->idMetodoPago,
+                'descripcion' => $deuda->descripcion,
+                'importe' => $base,
+                'igv' => $igv,
+                'total' => $importeTotal,
+                'fechaPago' => now(),
+                'conciliado' => 1
+            ]);
+
+            // 2. CREAR FACTURA AUTOMÁTICA
+            $factura = Factura::create([
+                'idPago' => $pago->idPago,
+                'numeroFactura' => 'F-' . time(),
+                'cliente' => $deuda->usuario->nombres ?? 'Cliente',
+                'documento' => '00000000',
+                'subtotal' => $base,
+                'igv' => $igv,
+                'total' => $importeTotal,
+                'estado' => 'EMITIDA',
+                'fecha' => now()
+            ]);
+
+            // 3. ACTUALIZAR DEUDA
+            $deuda->estado = "pagado";
+            $deuda->save();
+
+            DB::commit();
+
+            return response()->json([
+                "message" => "Pago y factura generados correctamente",
+                "pago" => $pago,
+                "factura" => $factura
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                "message" => "Error en pago",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
 
     //Eliminar deduda

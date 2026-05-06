@@ -52,5 +52,11 @@ class Pago extends Model
     {
         return $this->hasOne(MatriculaPagos::class, 'idPago');
     }
+
+    // Relación con la tabla de Pago
+    public function factura()
+    {
+        return $this->hasOne(Factura::class, 'idPago');
+    }
 }
 

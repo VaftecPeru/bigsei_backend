@@ -14,6 +14,7 @@ use App\Http\Controllers\ReporteEstudiantesController;
 use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ContadorController;
 use App\Http\Controllers\BibliotecaController;
+use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\DeudaController;
 
 use App\Http\Controllers\Superadministrador\EstudianteController as SuperAdminEstudianteController;
@@ -803,6 +804,10 @@ Route::get('listarModalidad', [AdminController::class, 'listarModalidad']);
 
 // RUTA PARA LISTAR DOCENTES
 Route::get('listarDocentes', [AdminController::class, 'listarDocentes']);
+
+// FACTURA
+Route::get('/factura/{idFactura}', [FacturaController::class, 'mostrar']);
+Route::get('/factura/{idFactura}/pdf', [FacturaController::class, 'descargar']);
 
 //================================================================================================
 
