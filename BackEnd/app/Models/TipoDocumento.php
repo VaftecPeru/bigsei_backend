@@ -13,6 +13,7 @@ class TipoDocumento extends Model
     protected $fillable = [
         'id_tipodocumento',
         'nombre',
-        'siglas'
+        'siglas',
+        'orden'
     ];
 }

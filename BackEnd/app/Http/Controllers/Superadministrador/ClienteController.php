@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Cliente;
+use App\Models\Persona;
+use App\Models\Empresa;
 
 /**
  * ClienteController — CRUD completo para la gestión de clientes del Superadministrador.
@@ -15,24 +18,43 @@ class ClienteController extends Controller
 {
     public function index(Request $request)
     {
-        $result = DB::table('cliente as a')
-            ->join('persona as b', 'a.id_cliente', 'b.id_persona')
+        $result = Cliente::with([
+                'empresa:id_empresa,id_tipodocumento,numero_documento,razon_social,correo,telefono,direccion',
+                'empresa.tipoDocumento:id_tipodocumento,nombre,siglas',
+                'persona:id_persona,nombre,apellido_paterno,apellido_materno,nombre_completo,id_tipodocumento,numero_documento,correo,telefono,direccion',
+                'persona.tipoDocumento:id_tipodocumento,nombre,siglas'
+            ])
+            ->leftJoin('persona as b', 'cliente.id_persona', 'b.id_persona')
+            ->leftJoin('empresa as c', 'cliente.id_empresa', 'c.id_empresa')
             ->select(
-                'a.id_cliente',
-                'b.nombre_completo',
-                'b.telefono',
-                'b.correo',
-                'a.ruc',
-                'a.razon_social',
-                'a.estado',
+                'cliente.id_cliente',
+                'cliente.id_persona',
+                'cliente.id_empresa',
+                'cliente.tipo',
+                'cliente.estado'
             );
 
         if (isset($request->text_search) && strlen($request->text_search) > 0) {
             $texto = str_replace(' ', '%', $request->text_search);
-            $result->whereRaw(
-                "upper(concat(b.nombre_completo, b.correo, a.ruc, a.razon_social)) LIKE upper(?)",
-                ['%'.$texto.'%']
-            );
+            $result->whereRaw("
+                upper(concat(
+                    coalesce(b.nombre_completo, ''),
+                    ' ',
+                    coalesce(b.correo, ''),
+                    ' ',
+                    coalesce(b.numero_documento, ''),
+                    ' ',
+                    coalesce(b.telefono, ''),
+                    ' ',
+                    coalesce(c.numero_documento, ''),
+                    ' ',
+                    coalesce(c.razon_social, ''),
+                    ' ',
+                    coalesce(c.correo, ''),
+                    ' ',
+                    coalesce(c.telefono, '')
+                )) LIKE upper(?)
+            ", ['%' . $texto . '%']);
         }
         $result->orderBy('b.nombre_completo', 'asc');
         return response()->json($result->get());
@@ -41,31 +63,85 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nombre_completo' => 'required|string|max:255',
-            'correo'          => 'required|email|max:100',
-            'telefono'        => 'nullable|string|max:20',
-            'ruc'             => 'nullable|string|max:15',
-            'razon_social'    => 'nullable|string|max:255',
+            'id_tipodocumento'  => 'required',
+            'numero_documento'  => 'required|string|max:20',
+            'nombre'            => 'nullable|string|max:150',
+            'apellido_paterno'  => 'nullable|string|max:150',
+            'apellido_materno'  => 'nullable|string|max:150',
+            'correo'            => 'nullable|email|max:255',
+            'telefono'          => 'nullable|string|max:20',
+            'direccion'         => 'nullable|string|max:255',
+            'sexo'              => 'nullable|string|max:1',
+            'fecha_nacimiento'  => 'nullable|date',
+            'razon_social'      => 'nullable|string|max:255',
+            'tipo'              => 'required|string|max:1',
+            'estado'            => 'required|string|max:1',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        if($request->tipo == 'N') {
+            $persona = Persona::where('id_tipodocumento',$request->id_tipodocumento)
+                ->where('numero_documento',$request->numero_documento)
+                ->first();
+            if ($persona) {
+                return response()->json(['errors' => 'Error: El número de documento esta registrado.'], 422);
+            }
+        } else if($request->tipo == 'J') {
+            $empresa = Empresa::where('id_tipodocumento',$request->id_tipodocumento)
+                ->where('numero_documento',$request->numero_documento)
+                ->first();
+            if ($empresa) {
+                return response()->json(['errors' => 'Error: El número de documento esta registrado.'], 422);
+            }
+        }
+
         DB::beginTransaction();
         try {
-            $id_persona = DB::table('persona')->insertGetId([
-                'nombre_completo' => $request->nombre_completo,
-                'correo'          => $request->correo,
-                'telefono'        => $request->telefono ?? '',
-            ]);
-            DB::table('cliente')->insert([
-                'id_cliente'   => $id_persona,
-                'ruc'          => $request->ruc ?? '',
-                'razon_social' => $request->razon_social ?? '',
-                'estado'       => '1',
+            $id_persona = null;
+            $id_empresa = null;
+            if($request->tipo == 'N') {
+                $nombreCompleto = implode(' ', array_filter([
+                    $request->nombre,
+                    $request->apellido_paterno,
+                    $request->apellido_materno
+                ]));
+                $persona = Persona::create([
+                    'id_tipodocumento' => $request->id_tipodocumento,
+                    'numero_documento' => $request->numero_documento,
+                    'nombre' => $request->nombre,
+                    'apellido_paterno' => $request->apellido_paterno,
+                    'apellido_materno' => $request->apellido_materno,
+                    'correo' => $request->correo,
+                    'nombre_completo' => $nombreCompleto,
+                    'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
+                    'sexo' => $request->sexo,
+                    'fecha_nacimiento' => $request->fecha_nacimiento,
+                    'fechareg' => now()
+                ]);
+                $id_persona = $persona->id_persona;
+            } else if($request->tipo == 'J') {
+                $empresa = Empresa::create([
+                    'id_tipodocumento' => $request->id_tipodocumento,
+                    'numero_documento' => $request->numero_documento,
+                    'correo' => $request->correo,
+                    'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
+                    'razon_social' => $request->razon_social
+                ]);
+                $id_empresa = $empresa->id_empresa;
+            }
+            $cliente = Cliente::create([
+                'id_empresa' => $id_empresa,
+                'id_persona' => $id_persona,
+                'estado' => $request->estado,
+                'tipo' => $request->tipo
+
             ]);
             DB::commit();
-            return response()->json(['message' => 'Cliente creado correctamente', 'id' => $id_persona], 201);
+            return response()->json(['message' => 'Cliente creado correctamente', 'data' => $cliente], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al crear cliente: '.$e->getMessage()], 500);
@@ -74,10 +150,22 @@ class ClienteController extends Controller
 
     public function show($id_cliente)
     {
-        $cliente = DB::table('cliente as a')
-            ->join('persona as b', 'a.id_cliente', 'b.id_persona')
-            ->select('a.id_cliente', 'b.nombre_completo', 'b.telefono', 'b.correo', 'a.ruc', 'a.razon_social', 'a.estado')
-            ->where('a.id_cliente', $id_cliente)
+        $cliente = Cliente::with([
+                'empresa:id_empresa,id_tipodocumento,numero_documento,razon_social,correo,telefono,direccion',
+                'empresa.tipoDocumento:id_tipodocumento,nombre,siglas',
+                'persona:id_persona,nombre,apellido_paterno,apellido_materno,nombre_completo,id_tipodocumento,numero_documento,correo,telefono,direccion,fecha_nacimiento',
+                'persona.tipoDocumento:id_tipodocumento,nombre,siglas'
+            ])
+            ->leftJoin('persona', 'cliente.id_persona', 'persona.id_persona')
+            ->leftJoin('empresa', 'cliente.id_empresa', 'empresa.id_empresa')
+            ->select(
+                'cliente.id_cliente',
+                'cliente.id_persona',
+                'cliente.id_empresa',
+                'cliente.tipo',
+                'cliente.estado'
+            )
+            ->where('cliente.id_cliente', $id_cliente)
             ->first();
 
         if (!$cliente) {
@@ -89,43 +177,93 @@ class ClienteController extends Controller
     public function update(Request $request, $id_cliente)
     {
         $validator = Validator::make($request->all(), [
-            'nombre_completo' => 'sometimes|required|string|max:255',
-            'correo'          => 'sometimes|required|email|max:100',
-            'telefono'        => 'nullable|string|max:20',
-            'ruc'             => 'nullable|string|max:15',
-            'razon_social'    => 'nullable|string|max:255',
-            'estado'          => 'sometimes|in:0,1',
+            'id_tipodocumento'  => 'required',
+            'numero_documento'  => 'required|string|max:20',
+            'nombre'            => 'nullable|string|max:150',
+            'apellido_paterno'  => 'nullable|string|max:150',
+            'apellido_materno'  => 'nullable|string|max:150',
+            'correo'            => 'nullable|email|max:255',
+            'telefono'          => 'nullable|string|max:20',
+            'direccion'         => 'nullable|string|max:255',
+            'sexo'              => 'nullable|string|max:1',
+            'fecha_nacimiento'  => 'nullable|date',
+            'razon_social'      => 'nullable|string|max:255',
+            'tipo'              => 'required|string|max:1',
+            'estado'            => 'required|string|max:1',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $existe = DB::table('cliente')->where('id_cliente', $id_cliente)->exists();
-        if (!$existe) {
+        $cliente = Cliente::find($id_cliente);
+        if (!$cliente) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+        if($cliente->tipo == 'N') {
+            $persona = Persona::where('id_tipodocumento',$request->id_tipodocumento)
+                ->where('numero_documento',$request->numero_documento)
+                ->where('id_persona','!=',$cliente->id_persona)
+                ->first();
+            if ($persona) {
+                return response()->json(['errors' => 'Error: El número de documento esta registrado.'], 422);
+            }
+        } else if($cliente->tipo == 'J') {
+            $empresa = Empresa::where('id_tipodocumento',$request->id_tipodocumento)
+                ->where('numero_documento',$request->numero_documento)
+                ->where('id_empresa','!=',$cliente->id_empresa)
+                ->first();
+            if ($empresa) {
+                return response()->json(['errors' => 'Error: El número de documento esta registrado.'], 422);
+            }
+        }
+
+        if($cliente->tipo == 'N') {
+            $persona = Persona::find($cliente->id_persona);
+            if (!$persona) {
+                return response()->json(['errors' => 'Error: Persona no encontrada.'], 422);
+            }
+        } else if($cliente->tipo == 'J') {
+            $empresa = Empresa::find($cliente->id_empresa);
+            if (!$empresa) {
+                return response()->json(['errors' => 'Error: Empresa no encontrada.'], 422);
+            }
         }
 
         DB::beginTransaction();
         try {
-            $personaData = array_filter([
-                'nombre_completo' => $request->nombre_completo ?? null,
-                'correo'          => $request->correo ?? null,
-                'telefono'        => $request->telefono ?? null,
-            ], fn($v) => !is_null($v));
-
-            if (!empty($personaData)) {
-                DB::table('persona')->where('id_persona', $id_cliente)->update($personaData);
+            if($cliente->tipo == 'N') {
+                $nombreCompleto = implode(' ', array_filter([
+                    $request->nombre,
+                    $request->apellido_paterno,
+                    $request->apellido_materno
+                ]));
+                $persona->update([
+                    'id_tipodocumento' => $request->id_tipodocumento,
+                    'numero_documento' => $request->numero_documento,
+                    'nombre' => $request->nombre,
+                    'apellido_paterno' => $request->apellido_paterno,
+                    'apellido_materno' => $request->apellido_materno,
+                    'correo' => $request->correo,
+                    'nombre_completo' => $nombreCompleto,
+                    'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
+                    'sexo' => $request->sexo,
+                    'fecha_nacimiento' => $request->fecha_nacimiento
+                ]);
+            } else if($cliente->tipo == 'J') {
+                $empresa->update([
+                    'id_tipodocumento' => $request->id_tipodocumento,
+                    'numero_documento' => $request->numero_documento,
+                    'correo' => $request->correo,
+                    'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
+                    'razon_social' => $request->razon_social
+                ]);
             }
 
-            $clienteData = array_filter([
-                'ruc'          => $request->ruc ?? null,
-                'razon_social' => $request->razon_social ?? null,
-                'estado'       => $request->estado ?? null,
-            ], fn($v) => !is_null($v));
-
-            if (!empty($clienteData)) {
-                DB::table('cliente')->where('id_cliente', $id_cliente)->update($clienteData);
-            }
+            $cliente->update([
+                'estado' => $request->estado,
+            ]);
 
             DB::commit();
             return response()->json(['message' => 'Cliente actualizado correctamente']);
@@ -137,14 +275,31 @@ class ClienteController extends Controller
 
     public function destroy($id_cliente)
     {
-        $existe = DB::table('cliente')->where('id_cliente', $id_cliente)->exists();
-        if (!$existe) {
+        $cliente = Cliente::find($id_cliente);
+        if (!$cliente) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+        if($cliente->tipo == 'N') {
+            $persona = Persona::find($cliente->id_persona);
+            if (!$persona) {
+                return response()->json(['errors' => 'Error: Persona no encontrada.'], 422);
+            }
+        } else if($cliente->tipo == 'J') {
+            $empresa = Empresa::find($cliente->id_empresa);
+            if (!$empresa) {
+                return response()->json(['errors' => 'Error: Empresa no encontrada.'], 422);
+            }
         }
 
         DB::beginTransaction();
         try {
-            DB::table('cliente')->where('id_cliente', $id_cliente)->update(['estado' => '0']);
+            if($cliente->tipo == 'N') {
+                $persona->delete();
+            } else if($cliente->tipo == 'J') {
+                $empresa->delete();
+            }
+            $cliente->delete();
+
             DB::commit();
             return response()->json(['message' => 'Cliente desactivado correctamente']);
         } catch (\Exception $e) {

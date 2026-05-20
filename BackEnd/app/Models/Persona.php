@@ -48,4 +48,9 @@ class Persona extends Model
     {
         return $this->belongsTo(TipoNiveleducativo::class, 'id_tiponiveleducativo_formativo');
     }
+
+    public function tipoDocumento()
+    {
+        return $this->belongsTo(TipoDocumento::class, 'id_tipodocumento');
+    }
 }

@@ -27,7 +27,8 @@ class TipoDocumentoController extends Controller
             });
         }
 
-        $result = $query->orderBy('siglas', 'asc')->get();
+        $result = $query->orderBy('orden', 'asc')
+            ->orderBy('id_tipodocumento', 'asc')->get();
 
         return response()->json($result);
     }

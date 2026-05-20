@@ -153,12 +153,12 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('vendedores', [SuperAdminVendedorController::class, 'store']);
     Route::put('vendedores/{id_vendedor}', [SuperAdminVendedorController::class, 'update']);
     Route::delete('vendedores/{id_vendedor}', [SuperAdminVendedorController::class, 'destroy']);
-    // Clientes
-    Route::get('clientes', [SuperAdminClienteController::class, 'index']);
-    Route::get('clientes/{id_cliente}', [SuperAdminClienteController::class, 'show']);
-    Route::post('clientes', [SuperAdminClienteController::class, 'store']);
-    Route::put('clientes/{id_cliente}', [SuperAdminClienteController::class, 'update']);
-    Route::delete('clientes/{id_cliente}', [SuperAdminClienteController::class, 'destroy']);
+    // // Clientes
+    // Route::get('clientes', [SuperAdminClienteController::class, 'index']);
+    // Route::get('clientes/{id_cliente}', [SuperAdminClienteController::class, 'show']);
+    // Route::post('clientes', [SuperAdminClienteController::class, 'store']);
+    // Route::put('clientes/{id_cliente}', [SuperAdminClienteController::class, 'update']);
+    // Route::delete('clientes/{id_cliente}', [SuperAdminClienteController::class, 'destroy']);
     Route::get('academico-periodos', [SuperAdminAcademicoController::class, 'indexPeriodo']);
     Route::get('academico-periodos/{id_periodo}', [SuperAdminAcademicoController::class, 'showPeriodo']);
     Route::post('academico-periodos', [SuperAdminAcademicoController::class, 'storePeriodo']);
@@ -176,8 +176,8 @@ Route::group(['prefix' => 'superadministrador', 'middleware' => ['CheckUserRoleM
     Route::post('academico-periodo-cursos', [SuperAdminAcademicoController::class, 'storePeriodoCurso']);
     Route::put('academico-periodo-cursos/{id_periodocurso}', [SuperAdminAcademicoController::class, 'updatePeriodoCurso']);
     Route::delete('academico-periodo-cursos/{id_periodocurso}', [SuperAdminAcademicoController::class, 'destroyPeriodoCurso']);
-    Route::get('asistencias', [SuperAdminAsistenciaController::class, 'index']);
-    Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
+    // Route::get('asistencias', [SuperAdminAsistenciaController::class, 'index']);
+    // Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
     Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
     Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
     // Rutas de gestión de usuarios (NUEVO - UsuarioController implementado)
@@ -545,6 +545,19 @@ Route::group(['prefix' => 'vendedor', 'middleware' => ['CheckUserRoleMW:vendedor
     Route::get('comisiones', [VendedorRolController::class, 'comisiones']);
     // Estadísticas de ventas
     Route::get('estadisticas-ventas', [VendedorRolController::class, 'estadisticasVentas']);
+
+    // Clientes
+    Route::get('clientes', [SuperAdminClienteController::class, 'index']);
+    Route::get('clientes/{id_cliente}', [SuperAdminClienteController::class, 'show']);
+    Route::post('clientes', [SuperAdminClienteController::class, 'store']);
+    Route::put('clientes/{id_cliente}', [SuperAdminClienteController::class, 'update']);
+    Route::delete('clientes/{id_cliente}', [SuperAdminClienteController::class, 'destroy']);
+    Route::get('asistencias', [SuperAdminAsistenciaController::class, 'index']);
+    Route::post('asistencias', [SuperAdminAsistenciaController::class, 'store']);
+    Route::get('matriculas/estudiantes-activos', [SuperAdminMatriculaController::class, 'estudiantesActivos']);
+    Route::get('matriculas/cursos-activos', [SuperAdminMatriculaController::class, 'cursosActivos']);
+    Route::get('academico-periodo-cursos/docentes-activos', [SuperAdminAcademicoController::class, 'docentesActivos']);
+    Route::get('academico-periodo-cursos/cursos-activos', [SuperAdminAcademicoController::class, 'cursosActivos']);
 });
 Route::group(['prefix' => 'bibliotecario', 'middleware' => ['CheckUserRoleMW:bibliotecario']], function () {
     // Rutas específicas para el rol Bibliotecario

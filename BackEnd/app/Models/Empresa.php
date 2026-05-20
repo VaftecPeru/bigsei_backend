@@ -38,6 +38,11 @@ class Empresa extends Model
     // 🔗 Relación: Empresa tiene muchos Doctores
     public function doctores()
     {
-        return $this->hasMany(Doctor::class, 'id_empresa', 'id_empresa');
+        return $this->hasMany(Doctor::class, 'id_empresa');
+    }
+
+    public function tipoDocumento()
+    {
+        return $this->belongsTo(TipoDocumento::class, 'id_tipodocumento');
     }
 }
